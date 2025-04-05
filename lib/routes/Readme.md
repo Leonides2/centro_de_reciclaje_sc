@@ -1,0 +1,1 @@
+Carpeta de las rutas estaticas y dinamicas

@@ -1,0 +1,1 @@
+Widgets pequeños o reutilizables
