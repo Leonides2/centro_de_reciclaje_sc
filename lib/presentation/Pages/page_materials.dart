@@ -22,9 +22,7 @@ class MaterialsPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                materialService.addMaterial(
-                  RecyclingMaterial(id: 1, nombre: "Hierro", precioKilo: 20),
-                );
+                materialService.registerMaterial("Hierro", 20);
               },
               child: Text("Añadir material"),
             ),
@@ -58,7 +56,11 @@ class MaterialsPage extends StatelessWidget {
                 itemCount: snapshot.data?.length ?? 0,
                 itemBuilder: (context, index) {
                   RecyclingMaterial material = snapshot.data![index];
-                  return ListTile(title: Text(material.nombre));
+                  return ListTile(
+                    title: Text(
+                      "Nombre: ${material.nombre}, Precio/Kilo: ${material.precioKilo}, Stock: ${material.stock} kg",
+                    ),
+                  );
                 },
               ),
             );
@@ -66,5 +68,14 @@ class MaterialsPage extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class MaterialCard extends StatelessWidget {
+  const MaterialCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Placeholder();
   }
 }

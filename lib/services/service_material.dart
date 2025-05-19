@@ -14,6 +14,7 @@ class MaterialService {
                 id: e["Id"] as int,
                 nombre: e["Nombre"] as String,
                 precioKilo: e["PrecioKilo"] as num,
+                stock: e["Stock"] as num,
               ),
             )
             .toList();
@@ -21,13 +22,12 @@ class MaterialService {
     return materials;
   }
 
-  void addMaterial(RecyclingMaterial material) async {
+  void registerMaterial(nombre, precioKilo) async {
     final db = await dbService.database;
     final materialId = await db.insert("Material", {
-      "nombre": material.nombre,
-      "precioKilo": material.precioKilo,
+      "nombre": nombre,
+      "precioKilo": precioKilo,
+      "stock": 0,
     });
-
-    await db.insert("StockMaterial", {"idMaterial": materialId, "stock": 0});
   }
 }

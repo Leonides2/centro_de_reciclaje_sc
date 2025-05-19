@@ -30,13 +30,7 @@ void createDatabase(Database db, int version) async {
         CREATE TABLE Material (
           Id INTEGER PRIMARY KEY AUTOINCREMENT,
           Nombre TEXT NOT NULL,
-          PrecioKilo REAL NOT NULL
-        );''');
-
-  await db.execute('''
-        CREATE TABLE StockMaterial (
-          Id INTEGER PRIMARY KEY AUTOINCREMENT,
-          IdMaterial INTEGER NOT NULL,
+          PrecioKilo REAL NOT NULL,
           Stock REAL NOT NULL
         );''');
 
@@ -49,13 +43,15 @@ void createDatabase(Database db, int version) async {
           FechaConfirmado TEXT NOT NULL
         );''');
 
-  await db.execute('''CREATE TABLE MaterialIngreso (
+  await db.execute('''
+        CREATE TABLE MaterialIngreso (
           IdMaterial INTEGER NOT NULL,
           IdIngreso INTEGER NOT NULL,
           Peso REAL NOT NULL
         );''');
 
-  await db.execute('''CREATE TABLE DraftIngreso (
+  await db.execute('''
+        CREATE TABLE DraftIngreso (
           Id INTEGER PRIMARY KEY AUTOINCREMENT,
           Detalle TEXT NOT NULL,
           Total REAL NOT NULL,
@@ -64,7 +60,8 @@ void createDatabase(Database db, int version) async {
           Confirmado INTEGER NOT NULL
         );''');
 
-  await db.execute('''CREATE TABLE MaterialDraftIngreso (
+  await db.execute('''
+        CREATE TABLE MaterialDraftIngreso (
           IdMaterial INTEGER NOT NULL,
           IdDraftIngreso INTEGER NOT NULL,
           Peso REAL NOT NULL

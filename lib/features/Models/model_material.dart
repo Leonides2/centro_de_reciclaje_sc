@@ -1,7 +1,13 @@
 class RecyclingMaterial {
-  RecyclingMaterial({this.id, required this.nombre, required this.precioKilo});
+  RecyclingMaterial({
+    required this.id,
+    required this.nombre,
+    required this.precioKilo,
+    required this.stock,
+  });
 
-  int? id;
+  int id;
   String nombre;
   num precioKilo;
+  num stock;
 }
