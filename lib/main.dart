@@ -13,7 +13,7 @@ class MainApp extends StatelessWidget {
       home: Scaffold(body: HomePage()),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Color(0x017d1c),
+          seedColor: Color(0x00017d1c),
           brightness: Brightness.light,
         ),
       ),
@@ -39,9 +39,18 @@ class _HomePage extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final Widget body = switch (_selectedIndex) {
+      0 => Placeholder(),
+      1 => Center(child: Text("Materiales")),
+      2 => Placeholder(),
+      3 => Placeholder(),
+      5 => Placeholder(),
+      _ => Placeholder(),
+    };
+
     return Scaffold(
       appBar: AppBar(title: Center(child: Text("Centro de Reciclaje SC"))),
-      body: Center(child: Text("${_selectedIndex}")),
+      body: body,
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
