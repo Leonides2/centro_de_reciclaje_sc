@@ -5,8 +5,6 @@ class DatabaseService {
   static Database? _db;
   static final DatabaseService instance = DatabaseService();
 
-  DatabaseService();
-
   Future<Database> get database async {
     if (_db != null) return _db!;
     _db = await getDatabase();
@@ -19,66 +17,70 @@ class DatabaseService {
 
     final database = openDatabase(
       databasePath,
-      onCreate:
-          (db, version) => {
-            db.execute('''
+      version: 1,
+      onCreate: createDatabase,
+    );
+
+    return database;
+  }
+}
+
+void createDatabase(Database db, int version) async {
+  await db.execute('''
         CREATE TABLE Material (
           Id INTEGER PRIMARY KEY AUTOINCREMENT,
           Nombre TEXT NOT NULL,
           PrecioKilo REAL NOT NULL
-        );
+        );''');
 
+  await db.execute('''
         CREATE TABLE StockMaterial (
-          ID INTEGER PRIMARY KEY AUTOINCREMENT,
+          Id INTEGER PRIMARY KEY AUTOINCREMENT,
           IdMaterial INTEGER NOT NULL,
           Stock REAL NOT NULL
-        );
+        );''');
 
+  await db.execute('''
         CREATE TABLE Ingreso (
           Id INTEGER PRIMARY KEY AUTOINCREMENT,
           Detalle TEXT NOT NULL,
           NombreVendedor TEXT NOT NULL,
           FechaCreado TEXT NOT NULL,
-          FechaConfirmado TEXT NOT NULL,
-        );
+          FechaConfirmado TEXT NOT NULL
+        );''');
 
-        CREATE TABLE MaterialIngreso (
+  await db.execute('''CREATE TABLE MaterialIngreso (
           IdMaterial INTEGER NOT NULL,
           IdIngreso INTEGER NOT NULL,
           Peso REAL NOT NULL
-        );
+        );''');
 
-        CREATE TABLE DraftIngreso (
+  await db.execute('''CREATE TABLE DraftIngreso (
           Id INTEGER PRIMARY KEY AUTOINCREMENT,
           Detalle TEXT NOT NULL,
           Total REAL NOT NULL,
           NombreVendedor TEXT NOT NULL,
           FechaCreado TEXT NOT NULL,
           Confirmado INTEGER NOT NULL
-        );
+        );''');
 
-        CREATE TABLE MaterialDraftIngreso (
+  await db.execute('''CREATE TABLE MaterialDraftIngreso (
           IdMaterial INTEGER NOT NULL,
           IdDraftIngreso INTEGER NOT NULL,
           Peso REAL NOT NULL
-        );
+        );''');
 
-        CREATE TABLE Egreso (
+  await db.execute('''CREATE TABLE Egreso (
           Id INTEGER PRIMARY KEY AUTOINCREMENT,
           Detalle TEXT NOT NULL,
           Total REAL NOT NULL,
           NombreVendedor TEXT NOT NULL,
           FechaCreado TEXT NOT NULL
-        );
+        );''');
 
-        CREATE TABLE MaterialEgreso (
+  await db.execute('''CREATE TABLE MaterialEgreso (
           IdMaterial INTEGER NOT NULL,
           IdEgreso INTEGER NOT NULL,
           Peso REAL NOT NULL
-        );
-      '''),
-          },
-    );
-    return database;
-  }
+        );''');
 }

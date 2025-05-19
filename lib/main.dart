@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:centro_de_reciclaje_sc/presentation/Pages/page_materials.dart';
+
 void main() {
   runApp(const MainApp());
 }
@@ -10,7 +12,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(body: HomePage()),
+      home: Scaffold(body: SafeArea(child: HomePage())),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color(0x00017d1c),
@@ -29,7 +31,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePage extends State<HomePage> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 2;
 
   void _onItemTapped(int i) {
     setState(() {
@@ -41,7 +43,7 @@ class _HomePage extends State<HomePage> {
   Widget build(BuildContext context) {
     final Widget body = switch (_selectedIndex) {
       0 => Placeholder(),
-      1 => Center(child: Text("Materiales")),
+      1 => MaterialsPage(),
       2 => Placeholder(),
       3 => Placeholder(),
       5 => Placeholder(),
@@ -49,7 +51,6 @@ class _HomePage extends State<HomePage> {
     };
 
     return Scaffold(
-      appBar: AppBar(title: Center(child: Text("Centro de Reciclaje SC"))),
       body: body,
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
