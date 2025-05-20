@@ -1,5 +1,5 @@
 name: centro_de_reciclaje_sc
-description: "Aplicacion para el manejo del Centro de Recliclaje SC"
+description: "Aplicacion para el manejo del Centro de Reciclaje SC"
 publish_to: 'none'
 version: 0.1.0
 
@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   path: ^1.9.1
   sqflite: ^2.4.2
+  loading_animation_widget: ^1.3.0
 
 dev_dependencies:
   flutter_test:

@@ -12,7 +12,10 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(body: SafeArea(child: HomePage())),
+      home: Scaffold(
+        resizeToAvoidBottomInset: true,
+        body: SafeArea(child: HomePage()),
+      ),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color(0x00017d1c),

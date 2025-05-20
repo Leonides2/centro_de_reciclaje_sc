@@ -22,9 +22,17 @@ class MaterialService {
     return materials;
   }
 
-  void registerMaterial(nombre, precioKilo) async {
+  void registerMaterial(String nombre, num precioKilo) async {
+    if (nombre.isEmpty) {
+      throw Exception("El campo \"nombre\" debe no estar vacío");
+    }
+
+    if (precioKilo <= 0) {
+      throw Exception("El campo \"precioKilo\" debe no estar vacío");
+    }
+
     final db = await dbService.database;
-    final materialId = await db.insert("Material", {
+    await db.insert("Material", {
       "nombre": nombre,
       "precioKilo": precioKilo,
       "stock": 0,

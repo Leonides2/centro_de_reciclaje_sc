@@ -29,7 +29,7 @@ void createDatabase(Database db, int version) async {
   await db.execute('''
         CREATE TABLE Material (
           Id INTEGER PRIMARY KEY AUTOINCREMENT,
-          Nombre TEXT NOT NULL,
+          Nombre TEXT NOT NULL OR EMPTY,
           PrecioKilo REAL NOT NULL,
           Stock REAL NOT NULL
         );''');
