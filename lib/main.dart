@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_materials.dart';
-import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MainApp());
@@ -18,11 +17,21 @@ class MainApp extends StatelessWidget {
         body: SafeArea(child: HomePage()),
       ),
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Color(0x00017d1c),
-          brightness: Brightness.light,
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: Color(0x00017d1c)),
       ),
+      /*ThemeData(
+        colorScheme: ColorScheme(
+          brightness: Brightness.light,
+          primary: Color(0xFF017D1C),
+          onPrimary: Colors.white,
+          secondary: Color(0xFFCCF527),
+          onSecondary: Colors.white,
+          error: Colors.redAccent,
+          onError: Colors.black,
+          surface: Colors.white,
+          onSurface: Colors.black,
+        ),
+      ),*/
     );
   }
 }

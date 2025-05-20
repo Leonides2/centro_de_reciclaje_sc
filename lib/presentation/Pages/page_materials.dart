@@ -17,6 +17,18 @@ class MaterialsPage extends StatefulWidget {
 class _MaterialsPageState extends State<MaterialsPage> {
   final materialService = MaterialService.instance;
 
+  late Future<List<RecyclingMaterial>> materials;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMaterials();
+  }
+
+  void _fetchMaterials() {
+    materials = materialService.getMaterials();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -36,7 +48,9 @@ class _MaterialsPageState extends State<MaterialsPage> {
                   builder: (context) {
                     return AddMaterialDialog(
                       onSuccess: () {
-                        setState(() {});
+                        setState(() {
+                          _fetchMaterials();
+                        });
                       },
                     );
                   },
@@ -47,7 +61,7 @@ class _MaterialsPageState extends State<MaterialsPage> {
           ],
         ),
         FutureBuilder(
-          future: materialService.getMaterials(),
+          future: materials,
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Expanded(
@@ -66,7 +80,7 @@ class _MaterialsPageState extends State<MaterialsPage> {
               );
             }
 
-            if (snapshot.data!.isEmpty) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
               return Expanded(
                 child: Center(
                   child: Text("No se han añadido materiales al sistema"),
@@ -84,7 +98,9 @@ class _MaterialsPageState extends State<MaterialsPage> {
                   return MaterialCard(
                     material: material,
                     onEditSuccess: () {
-                      setState(() {});
+                      setState(() {
+                        _fetchMaterials();
+                      });
                     },
                   );
                 },
@@ -113,18 +129,6 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
 
   final TextEditingController textController = TextEditingController();
   final TextEditingController weightController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-
-    textController.addListener(() {
-      setState(() {});
-    });
-    weightController.addListener(() {
-      setState(() {});
-    });
-  }
 
   @override
   void dispose() {
