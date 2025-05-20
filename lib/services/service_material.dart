@@ -38,4 +38,14 @@ class MaterialService {
       "stock": 0,
     });
   }
+
+  void editMaterial(int id, String nombre, num precioKilo, num stock) async {
+    final db = await dbService.database;
+    await db.update(
+      "Material",
+      {"Nombre": nombre, "PrecioKilo": precioKilo, "Stock": stock},
+      where: "Id = ?",
+      whereArgs: [id],
+    );
+  }
 }
