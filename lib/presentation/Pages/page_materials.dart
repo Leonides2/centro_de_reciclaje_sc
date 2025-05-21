@@ -145,47 +145,48 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
       title: Text("Nuevo material"),
       content: Form(
         key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-              child: TextFormField(
-                controller: textController,
-                validator: (value) => validateName(value),
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                child: TextFormField(
+                  controller: textController,
+                  validator: (value) => validateName(value),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                    ),
+                    labelText: "Nombre:",
+                    hintText: "Nombre:",
                   ),
-                  labelText: "Nombre:",
-                  hintText: "Nombre:",
+                  maxLength: 25,
                 ),
-                maxLength: 25,
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 10.0,
-                right: 10.0,
-                bottom: 8.0,
-              ),
-              child: TextFormField(
-                controller: weightController,
-                validator: (value) => validatePrecioStock(value),
-                keyboardType: TextInputType.numberWithOptions(
-                  signed: false,
-                  decimal: true,
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: 10.0,
+                  right: 10.0,
+                  bottom: 8.0,
                 ),
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                child: TextFormField(
+                  controller: weightController,
+                  validator: (value) => validatePrecioStock(value),
+                  keyboardType: TextInputType.numberWithOptions(
+                    signed: false,
+                    decimal: true,
                   ),
-                  labelText: "Precio/Kg",
-                  hintText: "Precio/Kg:",
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                    ),
+                    labelText: "Precio/Kg",
+                    hintText: "Precio/Kg:",
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       actionsAlignment: MainAxisAlignment.spaceAround,
@@ -371,61 +372,63 @@ class _EditDialogState extends State<EditDialog> {
       child: AlertDialog(
         icon: Icon(Icons.edit),
         title: Text("Editando \"${widget.material.nombre}\":"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: TextFormField(
-                controller: nombreController,
-                validator: (value) => validateName(value),
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: TextFormField(
+                  controller: nombreController,
+                  validator: (value) => validateName(value),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                    ),
+                    labelText: "Nombre:",
+                    hintText: "Nombre:",
                   ),
-                  labelText: "Nombre:",
-                  hintText: "Nombre:",
-                ),
-                maxLength: 25,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: TextFormField(
-                validator: (value) => validatePrecioStock(value),
-                controller: precioController,
-                keyboardType: TextInputType.numberWithOptions(
-                  signed: false,
-                  decimal: true,
-                ),
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                  ),
-                  labelText: "Precio/Kg",
-                  hintText: "Precio/Kg:",
+                  maxLength: 25,
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: TextFormField(
-                validator: (value) => validatePrecioStock(value),
-                controller: stockController,
-                keyboardType: TextInputType.numberWithOptions(
-                  signed: false,
-                  decimal: true,
-                ),
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: TextFormField(
+                  validator: (value) => validatePrecioStock(value),
+                  controller: precioController,
+                  keyboardType: TextInputType.numberWithOptions(
+                    signed: false,
+                    decimal: true,
                   ),
-                  labelText: "Stock",
-                  hintText: "Stock:",
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                    ),
+                    labelText: "Precio/Kg",
+                    hintText: "Precio/Kg:",
+                  ),
                 ),
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: TextFormField(
+                  validator: (value) => validatePrecioStock(value),
+                  controller: stockController,
+                  keyboardType: TextInputType.numberWithOptions(
+                    signed: false,
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                    ),
+                    labelText: "Stock",
+                    hintText: "Stock:",
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
         actions: [
           SizedBox(
