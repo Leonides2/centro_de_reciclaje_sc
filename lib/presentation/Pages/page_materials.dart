@@ -17,7 +17,7 @@ class MaterialsPage extends StatefulWidget {
 class _MaterialsPageState extends State<MaterialsPage> {
   final materialService = MaterialService.instance;
 
-  late Future<List<RecyclingMaterial>> materials;
+  late Future<List<RecyclingMaterial>> _materials;
 
   @override
   void initState() {
@@ -26,7 +26,7 @@ class _MaterialsPageState extends State<MaterialsPage> {
   }
 
   void _fetchMaterials() {
-    materials = materialService.getMaterials();
+    _materials = materialService.getMaterials();
   }
 
   @override
@@ -61,7 +61,7 @@ class _MaterialsPageState extends State<MaterialsPage> {
           ],
         ),
         FutureBuilder(
-          future: materials,
+          future: _materials,
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Expanded(
@@ -140,89 +140,91 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: SimpleDialog(
-        title: Text("Nuevo material"),
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-            child: TextFormField(
-              controller: textController,
-              validator: (value) => validateName(value),
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                ),
-                labelText: "Nombre:",
-                hintText: "Nombre:",
-              ),
-              maxLength: 25,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(
-              left: 10.0,
-              right: 10.0,
-              bottom: 8.0,
-            ),
-            child: TextFormField(
-              controller: weightController,
-              validator: (value) => validatePrecioStock(value),
-              keyboardType: TextInputType.numberWithOptions(
-                signed: false,
-                decimal: true,
-              ),
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                ),
-                labelText: "Precio/Kg",
-                hintText: "Precio/Kg:",
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: SizedBox(
-                  width: 120,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text("Cancelar"),
+    return AlertDialog(
+      icon: Icon(Icons.add),
+      title: Text("Nuevo material"),
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+              child: TextFormField(
+                controller: textController,
+                validator: (value) => validateName(value),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
                   ),
+                  labelText: "Nombre:",
+                  hintText: "Nombre:",
                 ),
+                maxLength: 25,
               ),
-              Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: SizedBox(
-                  width: 120,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (!_formKey.currentState!.validate()) {
-                        return;
-                      }
-
-                      materialService.registerMaterial(
-                        textController.text,
-                        num.parse(weightController.text),
-                      );
-
-                      widget.onSuccess();
-                      Navigator.pop(context);
-                    },
-                    child: Text("Añadir"),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 10.0,
+                right: 10.0,
+                bottom: 8.0,
+              ),
+              child: TextFormField(
+                controller: weightController,
+                validator: (value) => validatePrecioStock(value),
+                keyboardType: TextInputType.numberWithOptions(
+                  signed: false,
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
                   ),
+                  labelText: "Precio/Kg",
+                  hintText: "Precio/Kg:",
                 ),
               ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
+      actionsAlignment: MainAxisAlignment.spaceAround,
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: SizedBox(
+            width: 120,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("Cancelar"),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: SizedBox(
+            width: 120,
+            child: ElevatedButton(
+              onPressed: () {
+                if (!_formKey.currentState!.validate()) {
+                  return;
+                }
+
+                materialService.registerMaterial(
+                  textController.text,
+                  num.parse(weightController.text),
+                );
+
+                widget.onSuccess();
+                Navigator.pop(context);
+              },
+              child: Text("Añadir"),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -281,42 +283,38 @@ class DetailsDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SimpleDialog(
+    return AlertDialog(
+      icon: Icon(Icons.work),
       title: Text("Detalles:"),
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                FieldLabel("Nombre:"),
-                Text(material.nombre),
-                FieldLabel("Precio:"),
-                Text("₡${formatNum(material.precioKilo)}/Kg"),
-                FieldLabel("Stock:"),
-                Text("${formatNum(material.stock)} Kg"),
-              ],
-            ),
+      content: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FieldLabel("Nombre:"),
+            Text(material.nombre),
+            FieldLabel("Precio:"),
+            Text("₡${formatNum(material.precioKilo)}/Kg"),
+            FieldLabel("Stock:"),
+            Text("${formatNum(material.stock)} Kg"),
+          ],
+        ),
+      ),
+      actionsAlignment: MainAxisAlignment.spaceAround,
+      actions: [
+        SizedBox(
+          width: 120,
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text("Cerrar"),
           ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            SizedBox(
-              width: 120,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text("Cerrar"),
-              ),
-            ),
-            SizedBox(
-              width: 120,
-              child: ElevatedButton(onPressed: onEdit, child: Text("Editar")),
-            ),
-          ],
+        SizedBox(
+          width: 120,
+          child: ElevatedButton(onPressed: onEdit, child: Text("Editar")),
         ),
       ],
     );
@@ -370,133 +368,134 @@ class _EditDialogState extends State<EditDialog> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: SimpleDialog(
+      child: AlertDialog(
+        icon: Icon(Icons.edit),
         title: Text("Editando \"${widget.material.nombre}\":"),
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: TextFormField(
-              controller: nombreController,
-              validator: (value) => validateName(value),
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: TextFormField(
+                controller: nombreController,
+                validator: (value) => validateName(value),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                  ),
+                  labelText: "Nombre:",
+                  hintText: "Nombre:",
                 ),
-                labelText: "Nombre:",
-                hintText: "Nombre:",
-              ),
-              maxLength: 25,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: TextFormField(
-              validator: (value) => validatePrecioStock(value),
-              controller: precioController,
-              keyboardType: TextInputType.numberWithOptions(
-                signed: false,
-                decimal: true,
-              ),
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                ),
-                labelText: "Precio/Kg",
-                hintText: "Precio/Kg:",
+                maxLength: 25,
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: TextFormField(
-              validator: (value) => validatePrecioStock(value),
-              controller: stockController,
-              keyboardType: TextInputType.numberWithOptions(
-                signed: false,
-                decimal: true,
-              ),
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: TextFormField(
+                validator: (value) => validatePrecioStock(value),
+                controller: precioController,
+                keyboardType: TextInputType.numberWithOptions(
+                  signed: false,
+                  decimal: true,
                 ),
-                labelText: "Stock",
-                hintText: "Stock:",
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                  ),
+                  labelText: "Precio/Kg",
+                  hintText: "Precio/Kg:",
+                ),
               ),
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              SizedBox(
-                width: 120,
-                child: ElevatedButton(
-                  onPressed: widget.onClose,
-                  child: Text("Cancelar"),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: TextFormField(
+                validator: (value) => validatePrecioStock(value),
+                controller: stockController,
+                keyboardType: TextInputType.numberWithOptions(
+                  signed: false,
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                  ),
+                  labelText: "Stock",
+                  hintText: "Stock:",
                 ),
               ),
-              SizedBox(
-                width: 120,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (!_formKey.currentState!.validate()) {
-                      return;
-                    }
+            ),
+          ],
+        ),
+        actions: [
+          SizedBox(
+            width: 120,
+            child: ElevatedButton(
+              onPressed: widget.onClose,
+              child: Text("Cancelar"),
+            ),
+          ),
+          SizedBox(
+            width: 120,
+            child: ElevatedButton(
+              onPressed: () {
+                if (!_formKey.currentState!.validate()) {
+                  return;
+                }
 
-                    final id = widget.material.id;
-                    final nombre = nombreController.text;
-                    final precio = num.parse(precioController.text);
-                    final stock = num.parse(stockController.text);
+                final id = widget.material.id;
+                final nombre = nombreController.text;
+                final precio = num.parse(precioController.text);
+                final stock = num.parse(stockController.text);
 
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text("¿Está seguro?"),
-                          icon: Icon(Icons.edit),
-                          content: Text(
-                            'El material "${widget.material.nombre}" será modificado para tener los siguientes datos:\n'
-                            'Nombre: $nombre\n'
-                            'Precio: ₡${formatNum(precio)}/Kg\n'
-                            'Stock: ${formatNum(stock)} Kg\n'
-                            'Los cambios no se verán reflejados en el historial de ingresos o egresos. ¿Está seguro?',
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text("¿Está seguro?"),
+                      icon: Icon(Icons.edit),
+                      content: Text(
+                        'El material "${widget.material.nombre}" será modificado para tener los siguientes datos:\n'
+                        'Nombre: $nombre\n'
+                        'Precio: ₡${formatNum(precio)}/Kg\n'
+                        'Stock: ${formatNum(stock)} Kg\n'
+                        'Los cambios no se verán reflejados en el historial de ingresos o egresos. ¿Está seguro?',
+                      ),
+                      actions: [
+                        SizedBox(
+                          width: 120,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text("Cancelar"),
                           ),
-                          actions: [
-                            SizedBox(
-                              width: 120,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Text("Cancelar"),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 120,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  materialService.editMaterial(
-                                    id,
-                                    nombre,
-                                    precio,
-                                    stock,
-                                  );
-                                  widget.onSuccess();
-                                  Navigator.pop(context);
-                                  Navigator.pop(context);
-                                },
-                                child: Text("Aceptar"),
-                              ),
-                            ),
-                          ],
-                          actionsAlignment: MainAxisAlignment.spaceAround,
-                        );
-                      },
+                        ),
+                        SizedBox(
+                          width: 120,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              materialService.editMaterial(
+                                id,
+                                nombre,
+                                precio,
+                                stock,
+                              );
+                              widget.onSuccess();
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                            },
+                            child: Text("Aceptar"),
+                          ),
+                        ),
+                      ],
+                      actionsAlignment: MainAxisAlignment.spaceAround,
                     );
                   },
-                  child: Text("Aceptar"),
-                ),
-              ),
-            ],
+                );
+              },
+              child: Text("Aceptar"),
+            ),
           ),
         ],
       ),
