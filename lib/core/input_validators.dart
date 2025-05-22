@@ -1,4 +1,4 @@
-String? validateName(String? name) {
+String? validateNotEmpty(String? name) {
   if (name == null || name.isEmpty) {
     return "Campo requerido";
   }

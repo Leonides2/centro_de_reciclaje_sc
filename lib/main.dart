@@ -1,3 +1,4 @@
+import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_wrapper.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_ingresos.dart';
 import 'package:flutter/material.dart';
 
@@ -12,28 +13,7 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: SafeArea(child: HomePage()),
-      ),
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Color(0x00017d1c)),
-      ),
-      /*ThemeData(
-        colorScheme: ColorScheme(
-          brightness: Brightness.light,
-          primary: Color(0xFF017D1C),
-          onPrimary: Colors.white,
-          secondary: Color(0xFFCCF527),
-          onSecondary: Colors.white,
-          error: Colors.redAccent,
-          onError: Colors.black,
-          surface: Colors.white,
-          onSurface: Colors.black,
-        ),
-      ),*/
-    );
+    return PageWrapper(child: HomePage());
   }
 }
 
@@ -44,10 +24,14 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePage();
 }
 
+const materialsPageId = 1;
+const ingresosPageId = 3;
+const addIngresoPageId = 6;
+
 class _HomePage extends State<HomePage> {
   int _selectedIndex = 2;
 
-  void _onItemTapped(int i) {
+  void _setPageIndex(int i) {
     setState(() {
       _selectedIndex = i;
     });
@@ -57,9 +41,9 @@ class _HomePage extends State<HomePage> {
   Widget build(BuildContext context) {
     final Widget body = switch (_selectedIndex) {
       0 => Placeholder(),
-      1 => MaterialsPage(),
+      materialsPageId => MaterialsPage(),
       2 => Placeholder(),
-      3 => IngresosPage(),
+      ingresosPageId => IngresosPage(),
       5 => Placeholder(),
       _ => Placeholder(),
     };
@@ -82,7 +66,7 @@ class _HomePage extends State<HomePage> {
         ],
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+        onTap: _setPageIndex,
       ),
     );
   }

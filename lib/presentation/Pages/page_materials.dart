@@ -1,6 +1,7 @@
 import 'package:centro_de_reciclaje_sc/core/num_format.dart';
 import 'package:centro_de_reciclaje_sc/core/input_validators.dart';
-import 'package:centro_de_reciclaje_sc/core/widgets/field_label.dart';
+import 'package:centro_de_reciclaje_sc/core/widgets/widget_field_label.dart';
+import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_title.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
@@ -22,10 +23,11 @@ class _MaterialsPageState extends State<MaterialsPage> {
   @override
   void initState() {
     super.initState();
-    _fetchMaterials();
+    _materials = materialService.getMaterials();
   }
 
   void _fetchMaterials() {
+    materialService.clearMaterialsCache();
     _materials = materialService.getMaterials();
   }
 
@@ -35,12 +37,7 @@ class _MaterialsPageState extends State<MaterialsPage> {
       children: [
         Column(
           children: [
-            Title(
-              color: Theme.of(context).primaryColor,
-              child: Center(
-                child: Text("Materiales", style: TextStyle(fontSize: 25.0)),
-              ),
-            ),
+            PageTitle("Materiales"),
             ElevatedButton(
               onPressed: () {
                 showDialog(
@@ -65,7 +62,12 @@ class _MaterialsPageState extends State<MaterialsPage> {
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Expanded(
-                child: Center(child: Text("Error: ${snapshot.error}")),
+                child: Center(
+                  child: Text(
+                    "Error: ${snapshot.error}",
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
               );
             }
 
@@ -80,7 +82,7 @@ class _MaterialsPageState extends State<MaterialsPage> {
               );
             }
 
-            if (snapshot.connectionState == ConnectionState.waiting) {
+            if (snapshot.data!.isEmpty) {
               return Expanded(
                 child: Center(
                   child: Text("No se han añadido materiales al sistema"),
@@ -152,7 +154,7 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
                 padding: const EdgeInsets.only(left: 10.0, right: 10.0),
                 child: TextFormField(
                   controller: textController,
-                  validator: (value) => validateName(value),
+                  validator: (value) => validateNotEmpty(value),
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(20.0)),
@@ -380,7 +382,7 @@ class _EditDialogState extends State<EditDialog> {
                 padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
                   controller: nombreController,
-                  validator: (value) => validateName(value),
+                  validator: (value) => validateNotEmpty(value),
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(20.0)),

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:centro_de_reciclaje_sc/features/Models/model_material.dart';
 import 'package:centro_de_reciclaje_sc/services/service_database.dart';
 
@@ -5,7 +7,18 @@ class MaterialService {
   static final MaterialService instance = MaterialService();
   final dbService = DatabaseService.instance;
 
+  static List<RecyclingMaterial>? materialsCache;
+
+  void clearMaterialsCache() {
+    MaterialService.materialsCache = null;
+  }
+
   Future<List<RecyclingMaterial>> getMaterials() async {
+    if (MaterialService.materialsCache != null) {
+      log("Returning from cache");
+      return MaterialService.materialsCache!;
+    }
+
     final db = await dbService.database;
     final materials =
         (await db.query("Material"))
@@ -18,7 +31,8 @@ class MaterialService {
               ),
             )
             .toList();
-
+    log("Setting cache");
+    MaterialService.materialsCache = materials;
     return materials;
   }
 
