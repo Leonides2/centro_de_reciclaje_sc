@@ -195,36 +195,30 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
       actions: [
         Padding(
           padding: const EdgeInsets.only(left: 8.0),
-          child: SizedBox(
-            width: 120,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text("Cancelar"),
-            ),
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text("Cancelar"),
           ),
         ),
         Padding(
           padding: const EdgeInsets.only(right: 8.0),
-          child: SizedBox(
-            width: 120,
-            child: ElevatedButton(
-              onPressed: () {
-                if (!_formKey.currentState!.validate()) {
-                  return;
-                }
+          child: ElevatedButton(
+            onPressed: () {
+              if (!_formKey.currentState!.validate()) {
+                return;
+              }
 
-                materialService.registerMaterial(
-                  textController.text,
-                  num.parse(weightController.text),
-                );
+              materialService.registerMaterial(
+                textController.text,
+                num.parse(weightController.text),
+              );
 
-                widget.onSuccess();
-                Navigator.pop(context);
-              },
-              child: Text("Añadir"),
-            ),
+              widget.onSuccess();
+              Navigator.pop(context);
+            },
+            child: Text("Añadir"),
           ),
         ),
       ],
@@ -306,19 +300,14 @@ class DetailsDialog extends StatelessWidget {
       ),
       actionsAlignment: MainAxisAlignment.spaceAround,
       actions: [
-        SizedBox(
-          width: 120,
-          child: ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text("Cerrar"),
-          ),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text("Cerrar"),
         ),
-        SizedBox(
-          width: 120,
-          child: ElevatedButton(onPressed: onEdit, child: Text("Editar")),
-        ),
+
+        ElevatedButton(onPressed: onEdit, child: Text("Editar")),
       ],
     );
   }
@@ -433,16 +422,12 @@ class _EditDialogState extends State<EditDialog> {
           ),
         ),
         actions: [
-          SizedBox(
-            width: 120,
-            child: ElevatedButton(
+           ElevatedButton(
               onPressed: widget.onClose,
               child: Text("Cancelar"),
             ),
-          ),
-          SizedBox(
-            width: 120,
-            child: ElevatedButton(
+          
+          ElevatedButton(
               onPressed: () {
                 if (!_formKey.currentState!.validate()) {
                   return;
@@ -467,18 +452,13 @@ class _EditDialogState extends State<EditDialog> {
                         'Los cambios no se verán reflejados en el historial de ingresos o egresos. ¿Está seguro?',
                       ),
                       actions: [
-                        SizedBox(
-                          width: 120,
-                          child: ElevatedButton(
+                        ElevatedButton(
                             onPressed: () {
                               Navigator.pop(context);
                             },
                             child: Text("Cancelar"),
                           ),
-                        ),
-                        SizedBox(
-                          width: 120,
-                          child: ElevatedButton(
+                        ElevatedButton(
                             onPressed: () {
                               materialService.editMaterial(
                                 id,
@@ -492,7 +472,7 @@ class _EditDialogState extends State<EditDialog> {
                             },
                             child: Text("Aceptar"),
                           ),
-                        ),
+                        
                       ],
                       actionsAlignment: MainAxisAlignment.spaceAround,
                     );
@@ -501,7 +481,7 @@ class _EditDialogState extends State<EditDialog> {
               },
               child: Text("Aceptar"),
             ),
-          ),
+
         ],
       ),
     );
