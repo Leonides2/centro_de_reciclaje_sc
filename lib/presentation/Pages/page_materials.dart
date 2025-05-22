@@ -193,8 +193,6 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
       actions: [
         Padding(
           padding: const EdgeInsets.only(left: 8.0),
-          child: SizedBox(
-            width: 120,
             child: ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
@@ -202,11 +200,8 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
               child: Text("Cancelar"),
             ),
           ),
-        ),
         Padding(
           padding: const EdgeInsets.only(right: 8.0),
-          child: SizedBox(
-            width: 120,
             child: ElevatedButton(
               onPressed: () {
                 if (!_formKey.currentState!.validate()) {
@@ -224,7 +219,6 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
               child: Text("Añadir"),
             ),
           ),
-        ),
       ],
     );
   }
