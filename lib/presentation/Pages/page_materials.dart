@@ -2,6 +2,7 @@ import 'package:centro_de_reciclaje_sc/core/num_format.dart';
 import 'package:centro_de_reciclaje_sc/core/input_validators.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_field_label.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_title.dart';
+import 'package:centro_de_reciclaje_sc/core/widgets/widget_wave_loading_animation.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
@@ -60,32 +61,21 @@ class _MaterialsPageState extends State<MaterialsPage> {
           future: _materials,
           builder: (context, snapshot) {
             if (snapshot.hasError) {
-              return Expanded(
-                child: Center(
-                  child: Text(
-                    "Error: ${snapshot.error}",
-                    style: TextStyle(color: Colors.red),
-                  ),
+              return Center(
+                child: Text(
+                  "Error: ${snapshot.error}",
+                  style: TextStyle(color: Colors.red),
                 ),
               );
             }
 
             if (!snapshot.hasData) {
-              return Expanded(
-                child: Center(
-                  child: LoadingAnimationWidget.waveDots(
-                    color: Theme.of(context).primaryColor,
-                    size: 50,
-                  ),
-                ),
-              );
+              return Expanded(child: WaveLoadingAnimation());
             }
 
             if (snapshot.data!.isEmpty) {
-              return Expanded(
-                child: Center(
-                  child: Text("No se han añadido materiales al sistema"),
-                ),
+              return Center(
+                child: Text("No se han añadido materiales al sistema"),
               );
             }
 

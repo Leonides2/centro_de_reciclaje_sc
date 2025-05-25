@@ -12,7 +12,7 @@ class IngresoService {
     ingresosCache = null;
   }
 
-  Future<List<Ingreso>> getDraftIngresos() async {
+  Future<List<Ingreso>> getIngresos() async {
     if (ingresosCache != null) {
       return ingresosCache!;
     }
