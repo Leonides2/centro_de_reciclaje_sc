@@ -7,16 +7,16 @@ class MaterialService {
   static final MaterialService instance = MaterialService();
   final dbService = DatabaseService.instance;
 
-  static List<RecyclingMaterial>? materialsCache;
+  List<RecyclingMaterial>? materialsCache;
 
   void clearMaterialsCache() {
-    MaterialService.materialsCache = null;
+    materialsCache = null;
   }
 
   Future<List<RecyclingMaterial>> getMaterials() async {
-    if (MaterialService.materialsCache != null) {
+    if (materialsCache != null) {
       log("Returning from cache");
-      return MaterialService.materialsCache!;
+      return materialsCache!;
     }
 
     final db = await dbService.database;
@@ -32,7 +32,7 @@ class MaterialService {
             )
             .toList();
     log("Setting cache");
-    MaterialService.materialsCache = materials;
+    materialsCache = materials;
     return materials;
   }
 

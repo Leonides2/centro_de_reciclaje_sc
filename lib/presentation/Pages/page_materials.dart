@@ -421,67 +421,63 @@ class _EditDialogState extends State<EditDialog> {
             ],
           ),
         ),
+        actionsAlignment: MainAxisAlignment.spaceAround,
         actions: [
-           ElevatedButton(
-              onPressed: widget.onClose,
-              child: Text("Cancelar"),
-            ),
-          
+          ElevatedButton(onPressed: widget.onClose, child: Text("Cancelar")),
+
           ElevatedButton(
-              onPressed: () {
-                if (!_formKey.currentState!.validate()) {
-                  return;
-                }
+            onPressed: () {
+              if (!_formKey.currentState!.validate()) {
+                return;
+              }
 
-                final id = widget.material.id;
-                final nombre = nombreController.text;
-                final precio = num.parse(precioController.text);
-                final stock = num.parse(stockController.text);
+              final id = widget.material.id;
+              final nombre = nombreController.text;
+              final precio = num.parse(precioController.text);
+              final stock = num.parse(stockController.text);
 
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: Text("¿Está seguro?"),
-                      icon: Icon(Icons.edit),
-                      content: Text(
-                        'El material "${widget.material.nombre}" será modificado para tener los siguientes datos:\n'
-                        'Nombre: $nombre\n'
-                        'Precio: ₡${formatNum(precio)}/Kg\n'
-                        'Stock: ${formatNum(stock)} Kg\n'
-                        'Los cambios no se verán reflejados en el historial de ingresos o egresos. ¿Está seguro?',
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text("¿Está seguro?"),
+                    icon: Icon(Icons.edit),
+                    content: Text(
+                      'El material "${widget.material.nombre}" será modificado para tener los siguientes datos:\n'
+                      'Nombre: $nombre\n'
+                      'Precio: ₡${formatNum(precio)}/Kg\n'
+                      'Stock: ${formatNum(stock)} Kg\n'
+                      'Los cambios no se verán reflejados en el historial de ingresos o egresos. ¿Está seguro?',
+                    ),
+                    actions: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text("Cancelar"),
                       ),
-                      actions: [
-                        ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: Text("Cancelar"),
-                          ),
-                        ElevatedButton(
-                            onPressed: () {
-                              materialService.editMaterial(
-                                id,
-                                nombre,
-                                precio,
-                                stock,
-                              );
-                              widget.onSuccess();
-                              Navigator.pop(context);
-                              Navigator.pop(context);
-                            },
-                            child: Text("Aceptar"),
-                          ),
-                        
-                      ],
-                      actionsAlignment: MainAxisAlignment.spaceAround,
-                    );
-                  },
-                );
-              },
-              child: Text("Aceptar"),
-            ),
-
+                      ElevatedButton(
+                        onPressed: () {
+                          materialService.editMaterial(
+                            id,
+                            nombre,
+                            precio,
+                            stock,
+                          );
+                          widget.onSuccess();
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        },
+                        child: Text("Aceptar"),
+                      ),
+                    ],
+                    actionsAlignment: MainAxisAlignment.spaceAround,
+                  );
+                },
+              );
+            },
+            child: Text("Aceptar"),
+          ),
         ],
       ),
     );
