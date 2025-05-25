@@ -1,6 +1,7 @@
 import 'package:centro_de_reciclaje_sc/core/num_format.dart';
 import 'package:centro_de_reciclaje_sc/core/input_validators.dart';
-import 'package:centro_de_reciclaje_sc/core/widgets/field_label.dart';
+import 'package:centro_de_reciclaje_sc/core/widgets/widget_field_label.dart';
+import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_title.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
@@ -22,7 +23,7 @@ class _MaterialsPageState extends State<MaterialsPage> {
   @override
   void initState() {
     super.initState();
-    _fetchMaterials();
+    _materials = materialService.getMaterials();
   }
 
   void _fetchMaterials() {
@@ -35,12 +36,7 @@ class _MaterialsPageState extends State<MaterialsPage> {
       children: [
         Column(
           children: [
-            Title(
-              color: Theme.of(context).primaryColor,
-              child: Center(
-                child: Text("Materiales", style: TextStyle(fontSize: 25.0)),
-              ),
-            ),
+            PageTitle("Materiales"),
             ElevatedButton(
               onPressed: () {
                 showDialog(
@@ -65,7 +61,12 @@ class _MaterialsPageState extends State<MaterialsPage> {
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Expanded(
-                child: Center(child: Text("Error: ${snapshot.error}")),
+                child: Center(
+                  child: Text(
+                    "Error: ${snapshot.error}",
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
               );
             }
 
@@ -80,7 +81,7 @@ class _MaterialsPageState extends State<MaterialsPage> {
               );
             }
 
-            if (snapshot.connectionState == ConnectionState.waiting) {
+            if (snapshot.data!.isEmpty) {
               return Expanded(
                 child: Center(
                   child: Text("No se han añadido materiales al sistema"),
@@ -152,7 +153,7 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
                 padding: const EdgeInsets.only(left: 10.0, right: 10.0),
                 child: TextFormField(
                   controller: textController,
-                  validator: (value) => validateName(value),
+                  validator: (value) => validateNotEmpty(value),
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(20.0)),
@@ -180,6 +181,7 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(20.0)),
                     ),
+                    prefixText: "₡",
                     labelText: "Precio/Kg",
                     hintText: "Precio/Kg:",
                   ),
@@ -203,18 +205,20 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
         Padding(
           padding: const EdgeInsets.only(right: 8.0),
           child: ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (!_formKey.currentState!.validate()) {
                 return;
               }
 
-              materialService.registerMaterial(
+              await materialService.registerMaterial(
                 textController.text,
                 num.parse(weightController.text),
               );
 
               widget.onSuccess();
-              Navigator.pop(context);
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
             },
             child: Text("Añadir"),
           ),
@@ -369,7 +373,7 @@ class _EditDialogState extends State<EditDialog> {
                 padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
                   controller: nombreController,
-                  validator: (value) => validateName(value),
+                  validator: (value) => validateNotEmpty(value),
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(20.0)),
@@ -393,6 +397,7 @@ class _EditDialogState extends State<EditDialog> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(20.0)),
                     ),
+                    prefixText: "₡",
                     labelText: "Precio/Kg",
                     hintText: "Precio/Kg:",
                   ),
@@ -411,6 +416,7 @@ class _EditDialogState extends State<EditDialog> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(20.0)),
                     ),
+                    suffixText: "Kg",
                     labelText: "Stock",
                     hintText: "Stock:",
                   ),
@@ -419,67 +425,65 @@ class _EditDialogState extends State<EditDialog> {
             ],
           ),
         ),
+        actionsAlignment: MainAxisAlignment.spaceAround,
         actions: [
-           ElevatedButton(
-              onPressed: widget.onClose,
-              child: Text("Cancelar"),
-            ),
-          
+          ElevatedButton(onPressed: widget.onClose, child: Text("Cancelar")),
+
           ElevatedButton(
-              onPressed: () {
-                if (!_formKey.currentState!.validate()) {
-                  return;
-                }
+            onPressed: () {
+              if (!_formKey.currentState!.validate()) {
+                return;
+              }
 
-                final id = widget.material.id;
-                final nombre = nombreController.text;
-                final precio = num.parse(precioController.text);
-                final stock = num.parse(stockController.text);
+              final id = widget.material.id;
+              final nombre = nombreController.text;
+              final precio = num.parse(precioController.text);
+              final stock = num.parse(stockController.text);
 
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: Text("¿Está seguro?"),
-                      icon: Icon(Icons.edit),
-                      content: Text(
-                        'El material "${widget.material.nombre}" será modificado para tener los siguientes datos:\n'
-                        'Nombre: $nombre\n'
-                        'Precio: ₡${formatNum(precio)}/Kg\n'
-                        'Stock: ${formatNum(stock)} Kg\n'
-                        'Los cambios no se verán reflejados en el historial de ingresos o egresos. ¿Está seguro?',
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text("¿Está seguro?"),
+                    icon: Icon(Icons.edit),
+                    content: Text(
+                      'El material "${widget.material.nombre}" será modificado para tener los siguientes datos:\n'
+                      'Nombre: $nombre\n'
+                      'Precio: ₡${formatNum(precio)}/Kg\n'
+                      'Stock: ${formatNum(stock)} Kg\n'
+                      'Los cambios no se verán reflejados en el historial de ingresos o egresos. ¿Está seguro?',
+                    ),
+                    actions: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text("Cancelar"),
                       ),
-                      actions: [
-                        ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: Text("Cancelar"),
-                          ),
-                        ElevatedButton(
-                            onPressed: () {
-                              materialService.editMaterial(
-                                id,
-                                nombre,
-                                precio,
-                                stock,
-                              );
-                              widget.onSuccess();
-                              Navigator.pop(context);
-                              Navigator.pop(context);
-                            },
-                            child: Text("Aceptar"),
-                          ),
-                        
-                      ],
-                      actionsAlignment: MainAxisAlignment.spaceAround,
-                    );
-                  },
-                );
-              },
-              child: Text("Aceptar"),
-            ),
-
+                      ElevatedButton(
+                        onPressed: () async {
+                          await materialService.editMaterial(
+                            id,
+                            nombre,
+                            precio,
+                            stock,
+                          );
+                          widget.onSuccess();
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          }
+                        },
+                        child: Text("Aceptar"),
+                      ),
+                    ],
+                    actionsAlignment: MainAxisAlignment.spaceAround,
+                  );
+                },
+              );
+            },
+            child: Text("Aceptar"),
+          ),
         ],
       ),
     );
