@@ -36,7 +36,7 @@ class MaterialService {
     return materials;
   }
 
-  void registerMaterial(String nombre, num precioKilo) async {
+  Future<void> registerMaterial(String nombre, num precioKilo) async {
     if (nombre.isEmpty) {
       throw Exception("El campo \"nombre\" debe no estar vacío");
     }
@@ -51,9 +51,16 @@ class MaterialService {
       "precioKilo": precioKilo,
       "stock": 0,
     });
+
+    clearMaterialsCache();
   }
 
-  void editMaterial(int id, String nombre, num precioKilo, num stock) async {
+  Future<void> editMaterial(
+    int id,
+    String nombre,
+    num precioKilo,
+    num stock,
+  ) async {
     final db = await dbService.database;
     await db.update(
       "Material",
@@ -61,5 +68,7 @@ class MaterialService {
       where: "Id = ?",
       whereArgs: [id],
     );
+
+    clearMaterialsCache();
   }
 }

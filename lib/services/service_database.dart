@@ -17,8 +17,15 @@ class DatabaseService {
 
     final database = openDatabase(
       databasePath,
-      version: 1,
+      version: 2,
       onCreate: createDatabase,
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion == 1 && newVersion == 2) {
+          await db.execute('''
+            ALTER TABLE Ingreso ADD COLUMN IdDraftIngreso INTEGER NOT NULL;
+          ''');
+        }
+      },
     );
 
     return database;
@@ -37,6 +44,7 @@ void createDatabase(Database db, int version) async {
   await db.execute('''
         CREATE TABLE Ingreso (
           Id INTEGER PRIMARY KEY AUTOINCREMENT,
+          IdDraftIngreso INTEGER NOT NULL,
           Detalle TEXT NOT NULL,
           NombreVendedor TEXT NOT NULL,
           FechaCreado TEXT NOT NULL,

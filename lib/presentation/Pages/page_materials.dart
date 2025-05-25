@@ -27,7 +27,6 @@ class _MaterialsPageState extends State<MaterialsPage> {
   }
 
   void _fetchMaterials() {
-    materialService.clearMaterialsCache();
     _materials = materialService.getMaterials();
   }
 
@@ -182,6 +181,7 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(20.0)),
                     ),
+                    prefixText: "₡",
                     labelText: "Precio/Kg",
                     hintText: "Precio/Kg:",
                   ),
@@ -205,18 +205,20 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
         Padding(
           padding: const EdgeInsets.only(right: 8.0),
           child: ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (!_formKey.currentState!.validate()) {
                 return;
               }
 
-              materialService.registerMaterial(
+              await materialService.registerMaterial(
                 textController.text,
                 num.parse(weightController.text),
               );
 
               widget.onSuccess();
-              Navigator.pop(context);
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
             },
             child: Text("Añadir"),
           ),
@@ -395,6 +397,7 @@ class _EditDialogState extends State<EditDialog> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(20.0)),
                     ),
+                    prefixText: "₡",
                     labelText: "Precio/Kg",
                     hintText: "Precio/Kg:",
                   ),
@@ -413,6 +416,7 @@ class _EditDialogState extends State<EditDialog> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(20.0)),
                     ),
+                    suffixText: "Kg",
                     labelText: "Stock",
                     hintText: "Stock:",
                   ),
@@ -457,16 +461,18 @@ class _EditDialogState extends State<EditDialog> {
                         child: Text("Cancelar"),
                       ),
                       ElevatedButton(
-                        onPressed: () {
-                          materialService.editMaterial(
+                        onPressed: () async {
+                          await materialService.editMaterial(
                             id,
                             nombre,
                             precio,
                             stock,
                           );
                           widget.onSuccess();
-                          Navigator.pop(context);
-                          Navigator.pop(context);
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          }
                         },
                         child: Text("Aceptar"),
                       ),

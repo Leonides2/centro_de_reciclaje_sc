@@ -1,9 +1,8 @@
-import 'dart:developer';
-
 import 'package:centro_de_reciclaje_sc/core/input_validators.dart';
 import 'package:centro_de_reciclaje_sc/core/num_format.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_wrapper.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material.dart';
+import 'package:centro_de_reciclaje_sc/services/service_draft_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/services/service_material.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -17,6 +16,7 @@ class AddIngresoPage extends StatefulWidget {
 
 class _AddIngresoPageState extends State<AddIngresoPage> {
   final materialService = MaterialService.instance;
+  final draftIngresoService = DraftIngresoService.instance;
 
   final TextEditingController nombreVendedorController =
       TextEditingController();
@@ -163,16 +163,46 @@ class _AddIngresoPageState extends State<AddIngresoPage> {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: () {
-                          if (!_formKey.currentState!.validate() ||
-                              _materialFormsKey.currentState!.validateForms() !=
-                                  null) {
+                        onPressed: () async {
+                          if (!_formKey.currentState!.validate()) {
                             return;
                           }
 
-                          log(
-                            "${_materialFormsKey.currentState!.getFormValues()}",
+                          final materialsValidation =
+                              _materialFormsKey.currentState!.validateForms();
+
+                          if (materialsValidation != null) {
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (context) => AlertDialog(
+                                    icon: Icon(Icons.error),
+                                    title: Text("Error"),
+                                    content: Text(materialsValidation),
+                                    actionsAlignment: MainAxisAlignment.center,
+                                    actions: [
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text("Aceptar"),
+                                      ),
+                                    ],
+                                  ),
+                            );
+                            return;
+                          }
+
+                          await draftIngresoService.registerDraftIngreso(
+                            nombreVendedorController.text,
+                            num.parse(totalController.text),
+                            detalleController.text,
+                            _materialFormsKey.currentState!.getFormValues(),
                           );
+
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
                         },
                         child: Text("Añadir ingreso"),
                       ),

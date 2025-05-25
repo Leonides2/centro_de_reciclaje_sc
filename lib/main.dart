@@ -13,7 +13,12 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PageWrapper(child: HomePage());
+    return MaterialApp(
+      home: PageWrapper(child: HomePage()),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Color(0x00017d1c)),
+      ),
+    );
   }
 }
 
