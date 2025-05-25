@@ -32,7 +32,6 @@ class HomePage extends StatefulWidget {
 
 const materialsPageId = 1;
 const ingresosPageId = 3;
-const addIngresoPageId = 6;
 
 class _HomePage extends State<HomePage> {
   int _selectedIndex = 2;
