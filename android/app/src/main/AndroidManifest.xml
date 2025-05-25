@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="centro_de_reciclaje_sc"
+        android:label="Centro de reciclaje SC"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

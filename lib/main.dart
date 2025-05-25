@@ -2,6 +2,7 @@ import 'package:centro_de_reciclaje_sc/presentation/Pages/page_ingresos.dart';
 import 'package:flutter/material.dart';
 
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_materials.dart';
+import 'package:centro_de_reciclaje_sc/presentation/Pages/profile/profile_page.dart';
 
 void main() {
   runApp(const MainApp());
@@ -60,7 +61,7 @@ class _HomePage extends State<HomePage> {
       1 => MaterialsPage(),
       2 => Placeholder(),
       3 => IngresosPage(),
-      5 => Placeholder(),
+      4 => ProfilePage(),
       _ => Placeholder(),
     };
 
@@ -74,10 +75,7 @@ class _HomePage extends State<HomePage> {
           ),
           BottomNavigationBarItem(icon: Icon(Icons.work), label: 'Materiales'),
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.inventory),
-            label: 'Ingresos',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.inventory),label: 'Ingresos',),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
         ],
         type: BottomNavigationBarType.fixed,
