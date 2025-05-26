@@ -1,9 +1,9 @@
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_wrapper.dart';
+import 'package:centro_de_reciclaje_sc/features/Models/model_user.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_ingresos.dart';
 import 'package:flutter/material.dart';
-
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_materials.dart';
-import 'package:centro_de_reciclaje_sc/presentation/Pages/profile/profile_page.dart';
+import 'package:centro_de_reciclaje_sc/presentation/Pages/profile/page_profile.dart';
 
 void main() {
   runApp(const MainApp());
@@ -32,6 +32,7 @@ class HomePage extends StatefulWidget {
 
 const materialsPageId = 1;
 const ingresosPageId = 3;
+const profilePageId = 4;
 
 class _HomePage extends State<HomePage> {
   int _selectedIndex = 2;
@@ -49,9 +50,13 @@ class _HomePage extends State<HomePage> {
       materialsPageId => MaterialsPage(),
       2 => Placeholder(),
       ingresosPageId => IngresosPage(),
-      5 => Placeholder(),
+      profilePageId => ProfilePage(),
       _ => Placeholder(),
     };
+
+    final User user = User();
+
+
 
     return Scaffold(
       body: body,
