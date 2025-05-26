@@ -2,6 +2,7 @@ import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_wrapper.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_ingresos.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_materials.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_reportes.dart';
+import 'package:centro_de_reciclaje_sc/presentation/auth/page_login.dart';
 
 import 'package:flutter/material.dart';
 
