@@ -5,7 +5,9 @@
     <application
         android:label="Centro de reciclaje SC"
         android:name="${applicationName}"
+        android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher">
+        
         <activity
             android:name=".MainActivity"
             android:exported="true"

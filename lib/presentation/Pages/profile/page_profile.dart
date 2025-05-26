@@ -1,9 +1,16 @@
 
+import 'package:centro_de_reciclaje_sc/presentation/UI/ui_button.dart';
+import 'package:centro_de_reciclaje_sc/presentation/UI/ui_text_card.dart';
+import 'package:centro_de_reciclaje_sc/presentation/UI/ui_text_profile_title.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+  const ProfilePage({
+    super.key,
+    required this.onLogout
+  });
 
+  final Function onLogout;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,52 +34,44 @@ class ProfilePage extends StatelessWidget {
                     Container(
                       margin: EdgeInsets.all(10),
                       width: 80,
-                      height: 80,
+                      height: double.infinity,
                       decoration: BoxDecoration(
                         color: Color.fromARGB(255, 255, 255, 255),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Icon(Icons.person, size: 50, color: Colors.grey[700]),
                     ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                        'Username LastName Role 1',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                        overflow: TextOverflow.clip,
-                        ),
-                        Text('Profile Page'),
-                      ],
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextProfileTitle(
+                            text: 'Nombre de usuario',
+                            color: Colors.white,
+                          ),
+                          TextProfileTitle(
+                            text: 'email@email.com',
+                            color: Color.fromARGB(255, 240, 240, 240)
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               )
               ),
-            Container(
-              height: 60,
-              width: double.infinity,
-              margin: EdgeInsets.only(
-                left: 16,
-                right: 16,
-                top: 12,
-              ),
-              padding: EdgeInsets.all(10),
-              alignment: Alignment.centerLeft,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Color.fromARGB(255, 239, 239, 239),
-              ),
-              child: Text('Editar perfil')
-              ),
+            TextCard(text: 'Editar perfil',),
+            TextCard(text: 'Cambiar contraseña',),
+            UIButton(label: 'Cerrar sesión', onPressed: onLogout)
           ],
         ),
       ),
     );
   }
 }
+
+
+

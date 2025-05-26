@@ -35,7 +35,7 @@ class _ReportesPageState extends State<ReportesPage> {
               'Consulta estadísticas y análisis del centro de reciclaje',
               style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 40),
             Expanded(
               child: GridView.count(
                 crossAxisCount: 2,
@@ -105,7 +105,7 @@ class _ReportesPageState extends State<ReportesPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(icon, size: 48, color: color),
-              const SizedBox(height: 12),
+              const SizedBox(height: 4),
               Text(
                 title,
                 style: const TextStyle(

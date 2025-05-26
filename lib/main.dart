@@ -2,7 +2,8 @@ import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_wrapper.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_ingresos.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_materials.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_reportes.dart';
-import 'package:centro_de_reciclaje_sc/presentation/auth/page_login.dart';
+import 'package:centro_de_reciclaje_sc/presentation/Pages/auth/page_login.dart';
+import 'package:centro_de_reciclaje_sc/presentation/Pages/profile/page_profile.dart';
 
 import 'package:flutter/material.dart';
 
@@ -12,14 +13,35 @@ void main() {
   runApp(const MainApp());
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
+
+  @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  bool _isLoggedIn = false;
+
+  void _onLoginSuccess() {
+    setState(() {
+      _isLoggedIn = true;
+    });
+  }
+
+  void _onLogout() {
+    setState(() {
+      _isLoggedIn = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Centro de Reciclaje SC',
-      home: PageWrapper(child: HomePage()),
+      home: _isLoggedIn
+          ? PageWrapper(child: HomePage( onLogout: _onLogout,))
+          : LoginPage(onLoginSuccess: _onLoginSuccess),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF017d1c)),
         useMaterial3: true,
@@ -30,7 +52,8 @@ class MainApp extends StatelessWidget {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final VoidCallback onLogout;
+  const HomePage({super.key, required this.onLogout});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -42,6 +65,7 @@ const int materialsPageId = 1;
 const int homePageId = 2;
 const int ingresosPageId = 3;
 const int reportesPageId = 4;
+const int perfilPageId = 5; // Agregado para el perfil
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = homePageId; // Iniciar en Home
@@ -61,6 +85,7 @@ class _HomePageState extends State<HomePage> {
       homePageId => _buildHomePage(),
       ingresosPageId => IngresosPage(),
       reportesPageId => ReportesPage(),
+      perfilPageId => ProfilePage( onLogout: widget.onLogout,), // Página de perfil
       _ => _buildPlaceholderPage('Página no encontrada', Icons.error),
     };
 
@@ -79,14 +104,9 @@ class _HomePageState extends State<HomePage> {
           ),
           BottomNavigationBarItem(icon: Icon(Icons.work), label: 'Materiales'),
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.inventory),
-            label: 'Ingresos',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.analytics),
-            label: 'Reportes',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.inventory),label: 'Ingresos'),
+          BottomNavigationBarItem(icon: Icon(Icons.analytics),label: 'Reportes',),
+          BottomNavigationBarItem(icon: Icon(Icons.account_circle_rounded),label: 'Perfil',),
         ],
       ),
     );
