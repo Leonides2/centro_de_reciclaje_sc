@@ -33,3 +33,15 @@ class User {
   String? profilePictureUrl;
 
 }
+
+class UserRole {
+  UserRole({
+    required this.userId,
+    this.role = "Usuario",
+    this.permissions = const [],
+  });
+
+  int userId; // Referencia al usuario
+  String role; // Puede ser "Super Admin", "Admin", "Usuario"
+  List<String> permissions; // Lista de permisos, como "crear_reportes"
+}
