@@ -1,16 +1,13 @@
-import 'dart:developer';
 
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_field_label.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_title.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_wave_loading_animation.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_draft_or_ingreso.dart';
-import 'package:centro_de_reciclaje_sc/features/Models/model_material.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_add_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_draft_ingreso_details.dart';
 import 'package:centro_de_reciclaje_sc/services/service_draft_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/services/service_draft_or_ingreso.dart';
 import 'package:flutter/material.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class IngresosPage extends StatefulWidget {
   const IngresosPage({super.key});

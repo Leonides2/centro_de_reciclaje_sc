@@ -7,8 +7,6 @@ import 'package:centro_de_reciclaje_sc/presentation/Pages/profile/page_profile.d
 
 import 'package:flutter/material.dart';
 
-// ... resto del código igual
-
 void main() {
   runApp(const MainApp());
 }
