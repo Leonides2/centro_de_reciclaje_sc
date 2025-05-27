@@ -21,7 +21,7 @@ class IngresoService {
 
     final db = await dbService.database;
     final ingresos =
-        (await db.query("Ingreso", orderBy: "datetime(FechaConfirmado) ASC"))
+        (await db.query("Ingreso", orderBy: "datetime(FechaConfirmado) DESC"))
             .map(
               (e) => Ingreso(
                 id: e["Id"] as int,

@@ -63,8 +63,9 @@ const int usuariosPageId = 0;
 const int materialsPageId = 1;
 const int homePageId = 2;
 const int ingresosPageId = 3;
-const int reportesPageId = 4;
-const int perfilPageId = 5;
+const int egresosPageId = 4;
+const int reportesPageId = 5;
+const int perfilPageId = 6;
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = homePageId; // Iniciar en Home
@@ -82,6 +83,7 @@ class _HomePageState extends State<HomePage> {
       materialsPageId => MaterialsPage(),
       homePageId => _buildHomePage(),
       ingresosPageId => IngresosPage(),
+      egresosPageId => Placeholder(),
       reportesPageId => ReportesPage(),
       perfilPageId => ProfilePage(
         onLogout: widget.onLogout,
@@ -97,7 +99,7 @@ class _HomePageState extends State<HomePage> {
         onTap: _setPageIndex,
         selectedItemColor: const Color(0xFF017d1c),
         unselectedItemColor: Colors.grey,
-        items: const <BottomNavigationBarItem>[
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.person_add),
             label: 'Usuarios',
@@ -105,8 +107,12 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(icon: Icon(Icons.work), label: 'Materiales'),
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.inventory),
+            icon: Icon(Icons.arrow_downward),
             label: 'Ingresos',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.arrow_upward),
+            label: 'Egresos',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.analytics),
@@ -126,8 +132,8 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Centro de Reciclaje SC'),
-        backgroundColor: const Color(0xFF017d1c),
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
       ),
       body: const Padding(
         padding: EdgeInsets.all(16.0),

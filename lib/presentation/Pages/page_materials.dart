@@ -1,7 +1,7 @@
 import 'package:centro_de_reciclaje_sc/core/num_format.dart';
 import 'package:centro_de_reciclaje_sc/core/input_validators.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_field_label.dart';
-import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_title.dart';
+import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_wrapper.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_wave_loading_animation.dart';
 import 'package:flutter/material.dart';
 
@@ -32,73 +32,71 @@ class _MaterialsPageState extends State<MaterialsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Column(
-          children: [
-            PageTitle("Materiales"),
-            ElevatedButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AddMaterialDialog(
-                      onSuccess: () {
-                        setState(() {
-                          _fetchMaterials();
-                        });
-                      },
-                    );
-                  },
-                );
-              },
-              child: Text("Añadir material"),
-            ),
-          ],
-        ),
-        FutureBuilder(
-          future: _materials,
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Center(
-                child: Text(
-                  "Error: ${snapshot.error}",
-                  style: TextStyle(color: Colors.red),
-                ),
-              );
-            }
-
-            if (!snapshot.hasData) {
-              return Expanded(child: WaveLoadingAnimation());
-            }
-
-            if (snapshot.data!.isEmpty) {
-              return Center(
-                child: Text("No se han añadido materiales al sistema"),
-              );
-            }
-
-            return Expanded(
-              child: ListView.builder(
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                itemCount: snapshot.data?.length ?? 0,
-                itemBuilder: (context, index) {
-                  RecyclingMaterial material = snapshot.data![index];
-                  return MaterialCard(
-                    material: material,
-                    onEditSuccess: () {
+    return PageWrapper(
+      appBar: AppBar(
+        title: Text("Materiales"),
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AddMaterialDialog(
+                    onSuccess: () {
                       setState(() {
                         _fetchMaterials();
                       });
                     },
                   );
                 },
+              );
+            },
+            child: Text("Añadir material"),
+          ),
+        ],
+      ),
+      child: FutureBuilder(
+        future: _materials,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                "Error: ${snapshot.error}",
+                style: TextStyle(color: Colors.red),
               ),
             );
-          },
-        ),
-      ],
+          }
+
+          if (!snapshot.hasData) {
+            return WaveLoadingAnimation();
+          }
+
+          if (snapshot.data!.isEmpty) {
+            return Center(
+              child: Text("No se han añadido materiales al sistema"),
+            );
+          }
+
+          return ListView.builder(
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            itemCount: snapshot.data?.length ?? 0,
+            itemBuilder: (context, index) {
+              RecyclingMaterial material = snapshot.data![index];
+              return MaterialCard(
+                material: material,
+                onEditSuccess: () {
+                  setState(() {
+                    _fetchMaterials();
+                  });
+                },
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
@@ -492,44 +490,36 @@ class MaterialCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Theme.of(context).primaryColor,
-      shadowColor: Theme.of(context).shadowColor,
-      child: SizedBox(
-        height: 80,
-        child: Row(
-          children: [
-            Expanded(
-              child: Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-                    child: Icon(Icons.work, color: Colors.white, size: 35.0),
-                  ),
-                  Text(
-                    material.nombre,
-                    style: TextStyle(fontSize: 20.0, color: Colors.white),
-                  ),
-                ],
-              ),
+      child: InkWell(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return DetailsEditDialog(
+                material: material,
+                onEditSuccess: onEditSuccess,
+              );
+            },
+          );
+        },
+        child: SizedBox(
+          height: 80,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.work, color: Theme.of(context).primaryColor),
+                    Text(material.nombre, style: TextStyle(fontSize: 20.0)),
+                  ],
+                ),
+                Text("${formatNum(material.stock)} Kg en stock"),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: FloatingActionButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return DetailsEditDialog(
-                        material: material,
-                        onEditSuccess: onEditSuccess,
-                      );
-                    },
-                  );
-                },
-                child: Icon(Icons.subject),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

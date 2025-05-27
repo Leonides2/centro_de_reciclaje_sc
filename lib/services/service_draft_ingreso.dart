@@ -30,7 +30,7 @@ class DraftIngresoService {
     final List<DraftIngreso> draftIngresos =
         (await db.query(
           "DraftIngreso",
-          orderBy: "datetime(FechaCreado) ASC",
+          orderBy: "datetime(FechaCreado) DESC",
         )).map((e) => toDraftIngreso(e)).toList();
 
     draftIngresosCache = draftIngresos;

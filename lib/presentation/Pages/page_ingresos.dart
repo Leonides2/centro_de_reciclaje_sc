@@ -1,5 +1,5 @@
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_field_label.dart';
-import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_title.dart';
+import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_wrapper.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_wave_loading_animation.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_draft_or_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_add_ingreso.dart';
@@ -28,11 +28,13 @@ class _IngresosPageState extends State<IngresosPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        PageTitle("Ingresos"),
-        Center(
-          child: ElevatedButton(
+    return PageWrapper(
+      appBar: AppBar(
+        title: Text("Ingresos"),
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        actions: [
+          ElevatedButton(
             onPressed: () {
               Navigator.push(
                 context,
@@ -45,47 +47,45 @@ class _IngresosPageState extends State<IngresosPage> {
             },
             child: Text("Añadir ingreso"),
           ),
-        ),
-        FutureBuilder(
-          future: _draftIngresos,
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Expanded(
-                child: Center(child: Text("Error: ${snapshot.error}")),
-              );
-            }
-
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return WaveLoadingAnimation();
-            }
-
-            if (snapshot.data == null || snapshot.data!.isEmpty) {
-              return Expanded(
-                child: Center(
-                  child: Text("No se han añadido ingresos al sistema"),
-                ),
-              );
-            }
-
+        ],
+      ),
+      child: FutureBuilder(
+        future: _draftIngresos,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
             return Expanded(
-              child: ListView.builder(
-                itemCount: snapshot.data!.length,
-                itemBuilder:
-                    (context, i) => switch (snapshot.data![i]) {
-                      DraftIngreso draftIngreso => DraftIngresoCard(
-                        draftIngreso,
-                        onSuccess:
-                            () => setState(() {
-                              _fetchDraftOrIngresos();
-                            }),
-                      ),
-                      Ingreso ingreso => IngresoCard(ingreso, onSuccess: () {}),
-                    },
+              child: Center(child: Text("Error: ${snapshot.error}")),
+            );
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return WaveLoadingAnimation();
+          }
+
+          if (snapshot.data == null || snapshot.data!.isEmpty) {
+            return Expanded(
+              child: Center(
+                child: Text("No se han añadido ingresos al sistema"),
               ),
             );
-          },
-        ),
-      ],
+          }
+
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder:
+                (context, i) => switch (snapshot.data![i]) {
+                  DraftIngreso draftIngreso => DraftIngresoCard(
+                    draftIngreso,
+                    onSuccess:
+                        () => setState(() {
+                          _fetchDraftOrIngresos();
+                        }),
+                  ),
+                  Ingreso ingreso => IngresoCard(ingreso, onSuccess: () {}),
+                },
+          );
+        },
+      ),
     );
   }
 }
