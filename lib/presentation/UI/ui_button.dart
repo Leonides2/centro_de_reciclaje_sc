@@ -1,4 +1,4 @@
-
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 
@@ -18,7 +18,7 @@ class UIButton extends StatelessWidget {
     if (isEnabled) {
       onPressed();
     } else {
-      print('Button is disabled');
+      log('Button is disabled');
     }
   }
 
@@ -29,9 +29,7 @@ class UIButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: isEnabled ? const Color(0xFF017d1c) : Colors.grey,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
       child: Text(
         label,

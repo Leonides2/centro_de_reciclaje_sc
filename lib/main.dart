@@ -40,9 +40,10 @@ class _MainAppState extends State<MainApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Centro de Reciclaje SC',
-      home: _isLoggedIn
-          ? PageWrapper(child: HomePage( onLogout: _onLogout,))
-          : LoginPage(onLoginSuccess: _onLoginSuccess),
+      home:
+          _isLoggedIn
+              ? PageWrapper(child: HomePage(onLogout: _onLogout))
+              : LoginPage(onLoginSuccess: _onLoginSuccess),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF017d1c)),
         useMaterial3: true,
@@ -81,12 +82,14 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     // Determinar qué página mostrar según el índice seleccionado
     final Widget body = switch (_selectedIndex) {
-       usuariosPageId => const UsersPage(),
+      usuariosPageId => const UsersPage(),
       materialsPageId => MaterialsPage(),
       homePageId => _buildHomePage(),
       ingresosPageId => IngresosPage(),
       reportesPageId => ReportesPage(),
-      perfilPageId => ProfilePage( onLogout: widget.onLogout,), // Página de perfil
+      perfilPageId => ProfilePage(
+        onLogout: widget.onLogout,
+      ), // Página de perfil
       _ => _buildPlaceholderPage('Página no encontrada', Icons.error),
     };
 
@@ -105,9 +108,18 @@ class _HomePageState extends State<HomePage> {
           ),
           BottomNavigationBarItem(icon: Icon(Icons.work), label: 'Materiales'),
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.inventory),label: 'Ingresos'),
-          BottomNavigationBarItem(icon: Icon(Icons.analytics),label: 'Reportes',),
-          BottomNavigationBarItem(icon: Icon(Icons.account_circle_rounded),label: 'Perfil',),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.inventory),
+            label: 'Ingresos',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.analytics),
+            label: 'Reportes',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle_rounded),
+            label: 'Perfil',
+          ),
         ],
       ),
     );
