@@ -14,4 +14,23 @@ class DraftOrIngresoService {
 
     return List.from(draftIngresos)..addAll(ingresos);
   }
+
+  Future<List<DraftOrIngreso>> getDraftOrIngresosFiltered() async {
+    // TODO: Tal vez deberia de simplemente hacerse un query con un where...
+
+    final ingresos = await ingresoService.getIngresos();
+    final draftIngresos = await draftIngresoService.getDraftIngresos();
+
+    final List<DraftOrIngreso> draftOrIngresos = List.from(draftIngresos)
+      ..addAll(ingresos);
+
+    draftOrIngresos.retainWhere(
+      (e) => switch (e) {
+        DraftIngreso e => !e.confirmado,
+        Ingreso() => true,
+      },
+    );
+
+    return draftOrIngresos;
+  }
 }

@@ -8,8 +8,6 @@ import 'package:centro_de_reciclaje_sc/presentation/Pages/page_users.dart';
 
 import 'package:flutter/material.dart';
 
-// ... resto del código igual
-
 void main() {
   runApp(const MainApp());
 }
@@ -61,13 +59,12 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-// Constantes para los índices de las páginas
 const int usuariosPageId = 0;
 const int materialsPageId = 1;
 const int homePageId = 2;
 const int ingresosPageId = 3;
 const int reportesPageId = 4;
-const int perfilPageId = 5; // Agregado para el perfil
+const int perfilPageId = 5;
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = homePageId; // Iniciar en Home
@@ -80,8 +77,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Determinar qué página mostrar según el índice seleccionado
-    final Widget body = switch (_selectedIndex) {
+    final body = switch (_selectedIndex) {
       usuariosPageId => const UsersPage(),
       materialsPageId => MaterialsPage(),
       homePageId => _buildHomePage(),

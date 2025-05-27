@@ -12,38 +12,38 @@ class DraftIngresoService {
     draftIngresosCache = null;
   }
 
+  DraftIngreso toDraftIngreso(Map<String, Object?> e) => DraftIngreso(
+    id: e["Id"] as int,
+    nombreVendedor: e["NombreVendedor"] as String,
+    detalle: e["Detalle"] as String,
+    fechaCreado: DateTime.parse(e["FechaCreado"] as String),
+    confirmado: (e["Confirmado"] as int) != 0,
+    total: e["Total"] as num,
+  );
+
   Future<List<DraftIngreso>> getDraftIngresos() async {
     if (draftIngresosCache != null) {
       return draftIngresosCache!;
     }
 
     final db = await dbService.database;
-    final draftIngresos =
-        (await db.query("DraftIngreso"))
-            .map(
-              (e) => DraftIngreso(
-                id: e["Id"] as int,
-                nombreVendedor: e["NombreVendedor"] as String,
-                detalle: e["Detalle"] as String,
-                fechaCreado: DateTime.parse(e["FechaCreado"] as String),
-                confirmado: (e["Confirmado"] as int) != 0,
-                total: e["Total"] as num,
-              ),
-            )
-            .toList();
-
-    draftIngresos.sort((a, b) {
-      if (a.confirmado == b.confirmado) {
-        return -a.fechaCreado.compareTo(b.fechaCreado);
-      }
-      if (a.confirmado) {
-        return 1;
-      }
-      return -1;
-    });
+    final List<DraftIngreso> draftIngresos =
+        (await db.query(
+          "DraftIngreso",
+          orderBy: "datetime(FechaCreado) ASC",
+        )).map((e) => toDraftIngreso(e)).toList();
 
     draftIngresosCache = draftIngresos;
     return draftIngresos;
+  }
+
+  Future<DraftIngreso> getDraftIngreso(int id) async {
+    final db = await dbService.database;
+    final draftIngreso = toDraftIngreso(
+      (await db.query("DraftIngreso", where: "Id = ?", whereArgs: [id])).first,
+    );
+
+    return draftIngreso;
   }
 
   // TODO: Cacheo?

@@ -4,8 +4,10 @@ import 'package:centro_de_reciclaje_sc/core/widgets/widget_wave_loading_animatio
 import 'package:centro_de_reciclaje_sc/features/Models/model_draft_or_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_add_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_draft_ingreso_details.dart';
+import 'package:centro_de_reciclaje_sc/presentation/Pages/page_ingreso_details.dart';
 import 'package:centro_de_reciclaje_sc/services/service_draft_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/services/service_draft_or_ingreso.dart';
+import 'package:centro_de_reciclaje_sc/services/service_ingreso.dart';
 import 'package:flutter/material.dart';
 
 class IngresosPage extends StatefulWidget {
@@ -18,10 +20,10 @@ class IngresosPage extends StatefulWidget {
 class _IngresosPageState extends State<IngresosPage> {
   final draftOrIngresoService = DraftOrIngresoService.instance;
   late Future<List<DraftOrIngreso>> _draftIngresos =
-      draftOrIngresoService.getDraftOrIngresos();
+      draftOrIngresoService.getDraftOrIngresosFiltered();
 
   void _fetchDraftOrIngresos() {
-    _draftIngresos = draftOrIngresoService.getDraftOrIngresos();
+    _draftIngresos = draftOrIngresoService.getDraftOrIngresosFiltered();
   }
 
   @override
@@ -77,9 +79,7 @@ class _IngresosPageState extends State<IngresosPage> {
                               _fetchDraftOrIngresos();
                             }),
                       ),
-                      Ingreso ingreso => Expanded(
-                        child: Text("Ingreso ${ingreso.detalle}"),
-                      ),
+                      Ingreso ingreso => IngresoCard(ingreso, onSuccess: () {}),
                     },
               ),
             );
@@ -146,6 +146,66 @@ class DraftIngresoCard extends StatelessWidget {
                   color: draftIngreso.confirmado ? Colors.green : Colors.red,
                 ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class IngresoCard extends StatelessWidget {
+  IngresoCard(this.ingreso, {super.key, required this.onSuccess});
+  final ingresoService = IngresoService.instance;
+  final draftIngresoService = DraftIngresoService.instance;
+
+  final Ingreso ingreso;
+  final VoidCallback onSuccess;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: InkWell(
+        onTap: () async {
+          final total =
+              (await draftIngresoService.getDraftIngreso(
+                ingreso.idDraftIngreso,
+              )).total;
+          final entries = await ingresoService.geIngresoMaterials(ingreso.id);
+
+          if (!context.mounted) {
+            return;
+          }
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => IngresoDetailsPage(
+                    ingreso: ingreso,
+                    total: total,
+                    materialEntries: entries,
+                  ),
+            ),
+          ).then((context) {
+            onSuccess();
+          });
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                ingreso.detalle.trim(),
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 22),
+              ),
+              FieldLabel("Fecha de creación:"),
+              Text(
+                "${ingreso.fechaCreado.day}/${ingreso.fechaCreado.month}/${ingreso.fechaCreado.year}",
+              ),
+              Text("Confirmado", style: TextStyle(color: Colors.green)),
             ],
           ),
         ),
