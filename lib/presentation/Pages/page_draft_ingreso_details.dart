@@ -1,12 +1,15 @@
 import 'package:centro_de_reciclaje_sc/core/format_date.dart';
+import 'package:centro_de_reciclaje_sc/core/input_validators.dart';
 import 'package:centro_de_reciclaje_sc/core/num_format.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_field_label.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_wrapper.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_wave_loading_animation.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_draft_or_ingreso.dart';
+import 'package:centro_de_reciclaje_sc/features/Models/model_material.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material_entry.dart';
 import 'package:centro_de_reciclaje_sc/services/service_material.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DraftIngresoDetailsPage extends StatelessWidget {
   DraftIngresoDetailsPage({
@@ -94,12 +97,24 @@ class DraftIngresoDetailsPage extends StatelessWidget {
                             ),
                           ),
                     )
-                    : EditMaterialForms(
-                      key: _formKey,
-                      materialEntries: materialEntries,
+                    : Provider<List<RecyclingMaterial>>.value(
+                      value: snapshot.data!,
+                      child: EditMaterialForms(
+                        key: _formKey,
+                        materialEntries: materialEntries,
+                      ),
                     ),
                 FieldLabel("Total:"),
                 Text("₡${formatNum(draftIngreso.total)}"),
+                !draftIngreso.confirmado
+                    ? Align(
+                      alignment: Alignment.center,
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        child: Text("Confirmar materiales"),
+                      ),
+                    )
+                    : const SizedBox.shrink(),
               ],
             ),
           );
@@ -135,12 +150,17 @@ class EditMaterialFormsState extends State<EditMaterialForms> {
         );
       }).toList();
 
+  final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: forms.length,
-      itemBuilder: (context, i) => forms[i].form,
+    return Form(
+      key: _formKey,
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: forms.length,
+        itemBuilder: (context, i) => forms[i].form,
+      ),
     );
   }
 }
@@ -155,10 +175,67 @@ class EditMaterialForm extends StatefulWidget {
 }
 
 class EditMaterialFormState extends State<EditMaterialForm> {
+  final pesoController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    pesoController.text = widget.materialEntry.peso.toString();
+  }
+
+  @override
+  void dispose() {
+    pesoController.dispose();
+
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Text(
-      "INPUT FIELD AQUI: id material : ${widget.materialEntry.idMaterial}",
+    final materials = context.read<List<RecyclingMaterial>>();
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 8,
+                right: 8,
+                top: 14,
+                bottom: 14,
+              ),
+              child: FieldLabel(
+                materials
+                    .firstWhere((e) => e.id == widget.materialEntry.idMaterial)
+                    .nombre,
+              ),
+            ),
+            SizedBox(
+              width: 120,
+              child: TextFormField(
+                controller: pesoController,
+                validator: (value) => validatePrecioStock(value),
+                keyboardType: TextInputType.numberWithOptions(
+                  signed: false,
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  suffixText: "Kg",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                  ),
+                  hintText: "Peso:",
+                  labelText: "Peso:",
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
