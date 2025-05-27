@@ -4,6 +4,7 @@ import 'package:centro_de_reciclaje_sc/presentation/Pages/page_materials.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_reportes.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/auth/page_login.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/profile/page_profile.dart';
+import 'package:centro_de_reciclaje_sc/presentation/Pages/page_users.dart';
 
 import 'package:flutter/material.dart';
 
@@ -78,7 +79,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     // Determinar qué página mostrar según el índice seleccionado
     final Widget body = switch (_selectedIndex) {
-      usuariosPageId => _buildPlaceholderPage('Usuarios', Icons.person_add),
+       usuariosPageId => const UsersPage(),
       materialsPageId => MaterialsPage(),
       homePageId => _buildHomePage(),
       ingresosPageId => IngresosPage(),
