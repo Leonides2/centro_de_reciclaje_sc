@@ -3,6 +3,7 @@ import 'package:centro_de_reciclaje_sc/core/num_format.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_wrapper.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_wave_loading_animation.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material.dart';
+import 'package:centro_de_reciclaje_sc/features/Models/model_material_entry.dart';
 import 'package:centro_de_reciclaje_sc/services/service_draft_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/services/service_material.dart';
 import 'package:flutter/material.dart';
@@ -252,12 +253,12 @@ class MaterialFormsState extends State<MaterialForms> {
     return null;
   }
 
-  List<(int, num)> getFormValues() {
+  List<MaterialEntry> getFormValues() {
     return materialForms
         .map(
-          (formRef) => (
-            formRef.key.currentState!.selectedMaterial,
-            num.parse(formRef.key.currentState!.pesoController.text),
+          (formRef) => MaterialEntry(
+            idMaterial: formRef.key.currentState!.selectedMaterial,
+            peso: num.parse(formRef.key.currentState!.pesoController.text),
           ),
         )
         .toList();

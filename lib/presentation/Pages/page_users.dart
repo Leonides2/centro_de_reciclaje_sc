@@ -1,3 +1,5 @@
+import 'package:centro_de_reciclaje_sc/core/input_validators.dart';
+import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_users_form.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_user.dart';
@@ -21,6 +23,7 @@ class _UsersPageState extends State<UsersPage> {
   ];
 
   void _deleteUser(int index) {
+    // TODO: Implement logic
     setState(() {
       users.removeAt(index);
     });
@@ -35,36 +38,53 @@ class _UsersPageState extends State<UsersPage> {
         String lastName2 = "";
         String email = "";
 
+        final _formKey = GlobalKey<FormState>();
+
         return AlertDialog(
           title: Text("Añadir Usuario"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: InputDecoration(labelText: "Nombre"),
-                onChanged: (value) => name = value,
+          content: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    validator: validateNotEmpty,
+                    decoration: InputDecoration(labelText: "Nombre"),
+                    onChanged: (value) => name = value,
+                  ),
+                  TextFormField(
+                    validator: validateNotEmpty,
+                    decoration: InputDecoration(labelText: "Primer apellido"),
+                    onChanged: (value) => lastName1 = value,
+                  ),
+                  TextFormField(
+                    decoration: InputDecoration(labelText: "Segundo apellido"),
+                    onChanged: (value) => lastName2 = value,
+                  ),
+                  TextFormField(
+                    validator: validateNotEmpty,
+                    decoration: InputDecoration(
+                      labelText: "Correo Electrónico",
+                    ),
+                    onChanged: (value) => email = value,
+                  ),
+                ],
               ),
-              TextField(
-                decoration: InputDecoration(labelText: "Primer apellido"),
-                onChanged: (value) => lastName1 = value,
-              ),
-              TextField(
-                decoration: InputDecoration(labelText: "Segundo apellido"),
-                onChanged: (value) => lastName2 = value,
-              ),
-              TextField(
-                decoration: InputDecoration(labelText: "Correo Electrónico"),
-                onChanged: (value) => email = value,
-              ),
-            ],
+            ),
           ),
+          actionsAlignment: MainAxisAlignment.spaceAround,
           actions: [
-            TextButton(
+            ElevatedButton(
               onPressed: () => Navigator.pop(context),
               child: Text("Cancelar"),
             ),
             ElevatedButton(
               onPressed: () {
+                if (!_formKey.currentState!.validate()) {
+                  return;
+                }
+
                 _addUser(name, lastName1, lastName2, email);
                 Navigator.pop(context);
               },
@@ -77,6 +97,7 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   void _addUser(String name, String lastName1, String lastName2, String email) {
+    // TODO: Implement logic
     setState(() {
       users.add(
         User(
@@ -92,9 +113,14 @@ class _UsersPageState extends State<UsersPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PageWrapper(
       appBar: AppBar(title: Text("Usuarios"), backgroundColor: Colors.teal),
-      body: Padding(
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.teal,
+        onPressed: _showAddUserDialog,
+        child: Icon(Icons.add, color: Colors.white),
+      ),
+      child: Padding(
         padding: EdgeInsets.all(10),
         child: ListView.builder(
           itemCount: users.length,
@@ -165,11 +191,6 @@ class _UsersPageState extends State<UsersPage> {
             );
           },
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.teal,
-        onPressed: _showAddUserDialog,
-        child: Icon(Icons.add, color: Colors.white),
       ),
     );
   }

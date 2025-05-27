@@ -32,7 +32,15 @@ class DraftIngresoService {
             )
             .toList();
 
-    draftIngresos.sort((a, b) => a.fechaCreado.compareTo(b.fechaCreado));
+    draftIngresos.sort((a, b) {
+      if (a.confirmado == b.confirmado) {
+        return -a.fechaCreado.compareTo(b.fechaCreado);
+      }
+      if (a.confirmado) {
+        return 1;
+      }
+      return -1;
+    });
 
     draftIngresosCache = draftIngresos;
     return draftIngresos;
@@ -62,7 +70,7 @@ class DraftIngresoService {
     String nombreVendedor,
     num total,
     String detalle,
-    List<(int, num)> materiales,
+    List<MaterialEntry> materiales,
   ) async {
     // TODO: Check for duplicate materials and peso == 0
 
@@ -75,11 +83,11 @@ class DraftIngresoService {
       "Confirmado": 0,
     });
 
-    for (var (idMaterial, peso) in materiales) {
+    for (var entry in materiales) {
       await db.insert("MaterialDraftIngreso", {
-        "IdMaterial": idMaterial,
+        "IdMaterial": entry.idMaterial,
         "IdDraftIngreso": id,
-        "peso": peso,
+        "peso": entry.peso,
       });
     }
 

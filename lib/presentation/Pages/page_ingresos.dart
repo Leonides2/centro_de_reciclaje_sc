@@ -72,8 +72,14 @@ class _IngresosPageState extends State<IngresosPage> {
                     (context, i) => switch (snapshot.data![i]) {
                       DraftIngreso draftIngreso => DraftIngresoCard(
                         draftIngreso,
+                        onSuccess:
+                            () => setState(() {
+                              _fetchDraftOrIngresos();
+                            }),
                       ),
-                      Ingreso ingreso => Expanded(child: Placeholder()),
+                      Ingreso ingreso => Expanded(
+                        child: Text("Ingreso ${ingreso.detalle}"),
+                      ),
                     },
               ),
             );
@@ -85,10 +91,11 @@ class _IngresosPageState extends State<IngresosPage> {
 }
 
 class DraftIngresoCard extends StatelessWidget {
-  DraftIngresoCard(this.draftIngreso, {super.key});
+  DraftIngresoCard(this.draftIngreso, {required this.onSuccess, super.key});
 
   final draftIngresoService = DraftIngresoService.instance;
 
+  final VoidCallback onSuccess;
   final DraftIngreso draftIngreso;
 
   @override
@@ -113,7 +120,9 @@ class DraftIngresoCard extends StatelessWidget {
                     materialEntries: entries,
                   ),
             ),
-          );
+          ).then((context) {
+            onSuccess();
+          });
         },
         child: Padding(
           padding: const EdgeInsets.all(8.0),

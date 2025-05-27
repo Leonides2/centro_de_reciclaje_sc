@@ -7,6 +7,7 @@ import 'package:centro_de_reciclaje_sc/core/widgets/widget_wave_loading_animatio
 import 'package:centro_de_reciclaje_sc/features/Models/model_draft_or_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material_entry.dart';
+import 'package:centro_de_reciclaje_sc/services/service_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/services/service_material.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,8 @@ class DraftIngresoDetailsPage extends StatelessWidget {
   final DraftIngreso draftIngreso;
   final List<MaterialEntry> materialEntries;
   final _materials = MaterialService.instance.getMaterials();
+
+  final ingresoService = IngresoService.instance;
 
   final _formKey = GlobalKey<EditMaterialFormsState>();
 
@@ -51,8 +54,7 @@ class DraftIngresoDetailsPage extends StatelessWidget {
 
           return Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: ListView(
               children: [
                 FieldLabel("Detalle:"),
                 Text(draftIngreso.detalle),
@@ -110,7 +112,20 @@ class DraftIngresoDetailsPage extends StatelessWidget {
                     ? Align(
                       alignment: Alignment.center,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () async {
+                          if (!_formKey.currentState!.validate()) {
+                            return;
+                          }
+
+                          await ingresoService.registerIngreso(
+                            draftIngreso.id,
+                            _formKey.currentState!.getMaterialEntries(),
+                          );
+
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
+                        },
                         child: Text("Confirmar materiales"),
                       ),
                     )
@@ -152,6 +167,11 @@ class EditMaterialFormsState extends State<EditMaterialForms> {
 
   final _formKey = GlobalKey<FormState>();
 
+  List<MaterialEntry> getMaterialEntries() =>
+      forms.map((e) => e.key.currentState!.getMaterialEntry()).toList();
+
+  bool validate() => _formKey.currentState!.validate();
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -176,6 +196,11 @@ class EditMaterialForm extends StatefulWidget {
 
 class EditMaterialFormState extends State<EditMaterialForm> {
   final pesoController = TextEditingController();
+
+  MaterialEntry getMaterialEntry() => MaterialEntry(
+    idMaterial: widget.materialEntry.idMaterial,
+    peso: num.parse(pesoController.text),
+  );
 
   @override
   void initState() {
