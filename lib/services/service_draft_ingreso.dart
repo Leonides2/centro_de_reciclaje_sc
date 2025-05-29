@@ -12,30 +12,38 @@ class DraftIngresoService {
     draftIngresosCache = null;
   }
 
+  DraftIngreso toDraftIngreso(Map<String, Object?> e) => DraftIngreso(
+    id: e["Id"] as int,
+    nombreVendedor: e["NombreVendedor"] as String,
+    detalle: e["Detalle"] as String,
+    fechaCreado: DateTime.parse(e["FechaCreado"] as String),
+    confirmado: (e["Confirmado"] as int) != 0,
+    total: e["Total"] as num,
+  );
+
   Future<List<DraftIngreso>> getDraftIngresos() async {
     if (draftIngresosCache != null) {
       return draftIngresosCache!;
     }
 
     final db = await dbService.database;
-    final draftIngresos =
-        (await db.query("DraftIngreso"))
-            .map(
-              (e) => DraftIngreso(
-                id: e["Id"] as int,
-                nombreVendedor: e["NombreVendedor"] as String,
-                detalle: e["Detalle"] as String,
-                fechaCreado: DateTime.parse(e["FechaCreado"] as String),
-                confirmado: (e["Confirmado"] as int) != 0,
-                total: e["Total"] as num,
-              ),
-            )
-            .toList();
-
-    draftIngresos.sort((a, b) => a.fechaCreado.compareTo(b.fechaCreado));
+    final List<DraftIngreso> draftIngresos =
+        (await db.query(
+          "DraftIngreso",
+          orderBy: "datetime(FechaCreado) DESC",
+        )).map((e) => toDraftIngreso(e)).toList();
 
     draftIngresosCache = draftIngresos;
     return draftIngresos;
+  }
+
+  Future<DraftIngreso> getDraftIngreso(int id) async {
+    final db = await dbService.database;
+    final draftIngreso = toDraftIngreso(
+      (await db.query("DraftIngreso", where: "Id = ?", whereArgs: [id])).first,
+    );
+
+    return draftIngreso;
   }
 
   // TODO: Cacheo?
@@ -62,7 +70,7 @@ class DraftIngresoService {
     String nombreVendedor,
     num total,
     String detalle,
-    List<(int, num)> materiales,
+    List<MaterialEntry> materiales,
   ) async {
     // TODO: Check for duplicate materials and peso == 0
 
@@ -75,11 +83,11 @@ class DraftIngresoService {
       "Confirmado": 0,
     });
 
-    for (var (idMaterial, peso) in materiales) {
+    for (var entry in materiales) {
       await db.insert("MaterialDraftIngreso", {
-        "IdMaterial": idMaterial,
+        "IdMaterial": entry.idMaterial,
         "IdDraftIngreso": id,
-        "peso": peso,
+        "peso": entry.peso,
       });
     }
 

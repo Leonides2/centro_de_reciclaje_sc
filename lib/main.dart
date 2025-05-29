@@ -1,4 +1,5 @@
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_wrapper.dart';
+import 'package:centro_de_reciclaje_sc/presentation/Pages/page_egresos.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_ingresos.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_materials.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_reportes.dart';
@@ -38,9 +39,10 @@ class _MainAppState extends State<MainApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Centro de Reciclaje SC',
-      home: _isLoggedIn
-          ? PageWrapper(child: HomePage( onLogout: _onLogout,))
-          : LoginPage(onLoginSuccess: _onLoginSuccess),
+      home:
+          _isLoggedIn
+              ? PageWrapper(child: HomePage(onLogout: _onLogout))
+              : LoginPage(onLoginSuccess: _onLoginSuccess),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF017d1c)),
         useMaterial3: true,
@@ -58,13 +60,13 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-// Constantes para los índices de las páginas
 const int usuariosPageId = 0;
 const int materialsPageId = 1;
 const int homePageId = 2;
 const int ingresosPageId = 3;
-const int reportesPageId = 4;
-const int perfilPageId = 5; // Agregado para el perfil
+const int egresosPageId = 4;
+const int reportesPageId = 5;
+const int perfilPageId = 6;
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = homePageId; // Iniciar en Home
@@ -77,14 +79,16 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Determinar qué página mostrar según el índice seleccionado
-    final Widget body = switch (_selectedIndex) {
-       usuariosPageId => const UsersPage(),
+    final body = switch (_selectedIndex) {
+      usuariosPageId => const UsersPage(),
       materialsPageId => MaterialsPage(),
       homePageId => _buildHomePage(),
       ingresosPageId => IngresosPage(),
+      egresosPageId => EgresosPage(),
       reportesPageId => ReportesPage(),
-      perfilPageId => ProfilePage( onLogout: widget.onLogout,), // Página de perfil
+      perfilPageId => ProfilePage(
+        onLogout: widget.onLogout,
+      ), // Página de perfil
       _ => _buildPlaceholderPage('Página no encontrada', Icons.error),
     };
 
@@ -96,16 +100,29 @@ class _HomePageState extends State<HomePage> {
         onTap: _setPageIndex,
         selectedItemColor: const Color(0xFF017d1c),
         unselectedItemColor: Colors.grey,
-        items: const <BottomNavigationBarItem>[
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.person_add),
             label: 'Usuarios',
           ),
           BottomNavigationBarItem(icon: Icon(Icons.work), label: 'Materiales'),
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.inventory),label: 'Ingresos'),
-          BottomNavigationBarItem(icon: Icon(Icons.analytics),label: 'Reportes',),
-          BottomNavigationBarItem(icon: Icon(Icons.account_circle_rounded),label: 'Perfil',),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.arrow_downward),
+            label: 'Ingresos',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.arrow_upward),
+            label: 'Egresos',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.analytics),
+            label: 'Reportes',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle_rounded),
+            label: 'Perfil',
+          ),
         ],
       ),
     );
@@ -116,13 +133,12 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Centro de Reciclaje SC'),
-        backgroundColor: const Color(0xFF017d1c),
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
       ),
-      body: const Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(
           children: [
             Text(
               '¡Bienvenido!',

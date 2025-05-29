@@ -1,6 +1,8 @@
 import 'package:centro_de_reciclaje_sc/features/Models/model_draft_or_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material_entry.dart';
 import 'package:centro_de_reciclaje_sc/services/service_database.dart';
+import 'package:centro_de_reciclaje_sc/services/service_draft_ingreso.dart';
+import 'package:centro_de_reciclaje_sc/services/service_material.dart';
 
 class IngresoService {
   static final IngresoService instance = IngresoService();
@@ -19,7 +21,7 @@ class IngresoService {
 
     final db = await dbService.database;
     final ingresos =
-        (await db.query("Ingreso"))
+        (await db.query("Ingreso", orderBy: "datetime(FechaConfirmado) DESC"))
             .map(
               (e) => Ingreso(
                 id: e["Id"] as int,
@@ -60,7 +62,7 @@ class IngresoService {
 
   Future<void> registerIngreso(
     int idDraftIngreso,
-    List<(int, num)> materiales,
+    List<MaterialEntry> materiales,
   ) async {
     final db = await dbService.database;
 
@@ -86,18 +88,32 @@ class IngresoService {
       "IdDraftIngreso": draftIngreso.id,
       "NombreVendedor": draftIngreso.nombreVendedor,
       "Detalle": draftIngreso.detalle,
-      "FechaCreado": draftIngreso.fechaCreado,
+      "FechaCreado": draftIngreso.fechaCreado.toString(),
       "FechaConfirmado": DateTime.now().toLocal().toString(),
     });
 
-    for (var (idMaterial, peso) in materiales) {
+    for (var entry in materiales) {
       await db.insert("MaterialIngreso", {
-        "IdMaterial": idMaterial,
+        "IdMaterial": entry.idMaterial,
         "IdIngreso": id,
-        "Peso": peso,
+        "Peso": entry.peso,
       });
+
+      await db.rawUpdate(
+        "UPDATE Material SET Stock = Stock + ? WHERE Id = ?;",
+        [entry.peso, entry.idMaterial],
+      );
     }
 
+    await db.update(
+      "DraftIngreso",
+      where: "Id = ?",
+      whereArgs: [idDraftIngreso],
+      {"Confirmado": true},
+    );
+
+    DraftIngresoService.instance.clearDraftIngresosCache();
+    MaterialService.instance.clearMaterialsCache();
     clearIngresosCache();
   }
 }
