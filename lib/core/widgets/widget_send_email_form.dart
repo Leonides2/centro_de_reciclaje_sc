@@ -41,6 +41,7 @@ class _SendEmailFormState extends State<SendEmailForm> {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: TextFormField(
+            autofocus: false,
             validator: validateEmail,
             controller: _emailController,
             decoration: InputDecoration(
@@ -70,6 +71,7 @@ class _SendEmailFormState extends State<SendEmailForm> {
             if (!context.mounted) {
               return;
             }
+            FocusManager.instance.primaryFocus?.unfocus();
 
             showLoadingDialog(context);
 
