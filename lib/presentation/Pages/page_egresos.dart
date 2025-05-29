@@ -3,6 +3,7 @@ import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_wrapper.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_wave_loading_animation.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_egreso.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_add_egreso.dart';
+import 'package:centro_de_reciclaje_sc/presentation/Pages/page_egreso_details.dart';
 import 'package:centro_de_reciclaje_sc/services/service_egreso.dart';
 import 'package:flutter/material.dart';
 
@@ -35,7 +36,7 @@ class _EgresosPageState extends State<EgresosPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => AddEgresoPage()),
-              );
+              ).then((context) => {setState(_fetchEgresos)});
             },
             child: Text("Añadir egreso"),
           ),
@@ -63,8 +64,7 @@ class _EgresosPageState extends State<EgresosPage> {
 
           return ListView.builder(
             itemCount: snapshot.data!.length,
-            itemBuilder:
-                (context, i) => EgresoCard(snapshot.data![i], onSuccess: () {}),
+            itemBuilder: (context, i) => EgresoCard(snapshot.data![i]),
           );
         },
       ),
@@ -73,10 +73,9 @@ class _EgresosPageState extends State<EgresosPage> {
 }
 
 class EgresoCard extends StatelessWidget {
-  EgresoCard(this.egreso, {super.key, required this.onSuccess});
+  EgresoCard(this.egreso, {super.key});
 
   final Egreso egreso;
-  final VoidCallback onSuccess;
 
   final _egresoService = EgresoService.instance;
 
@@ -93,10 +92,14 @@ class EgresoCard extends StatelessWidget {
 
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => Placeholder()),
-          ).then((context) {
-            onSuccess();
-          });
+            MaterialPageRoute(
+              builder:
+                  (context) => EgresoDetailsPage(
+                    egreso: egreso,
+                    materialEntries: entries,
+                  ),
+            ),
+          );
         },
         child: Padding(
           padding: const EdgeInsets.all(8.0),

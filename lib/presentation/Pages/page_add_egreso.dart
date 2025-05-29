@@ -168,16 +168,16 @@ class _AddEgresoPageState extends State<AddEgresoPage> {
                           _detalleController.text,
                           _materialFormsKey.currentState!.getFormValues(),
                         );
+
+                        if (context.mounted) {
+                          Navigator.pop(context);
+                        }
                       } on String catch (e) {
                         if (!context.mounted) {
                           return;
                         }
                         showErrorDialog(context, e);
                         return;
-                      }
-
-                      if (context.mounted) {
-                        Navigator.pop(context);
                       }
                     },
                     child: Text("Añadir egreso"),

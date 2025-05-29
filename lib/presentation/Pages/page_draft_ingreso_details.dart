@@ -32,6 +32,8 @@ class DraftIngresoDetailsPage extends StatelessWidget {
     return PageWrapper(
       appBar: AppBar(
         title: Text("Detalles del Draft de Ingreso"),
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);

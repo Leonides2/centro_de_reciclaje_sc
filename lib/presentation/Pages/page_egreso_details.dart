@@ -3,29 +3,27 @@ import 'package:centro_de_reciclaje_sc/core/num_format.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_field_label.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_wrapper.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_wave_loading_animation.dart';
-import 'package:centro_de_reciclaje_sc/features/Models/model_draft_or_ingreso.dart';
+import 'package:centro_de_reciclaje_sc/features/Models/model_egreso.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material_entry.dart';
 import 'package:centro_de_reciclaje_sc/services/service_material.dart';
 import 'package:flutter/material.dart';
 
-class IngresoDetailsPage extends StatelessWidget {
-  IngresoDetailsPage({
+class EgresoDetailsPage extends StatelessWidget {
+  EgresoDetailsPage({
     super.key,
-    required this.ingreso,
+    required this.egreso,
     required this.materialEntries,
-    required this.total,
   });
 
-  final Ingreso ingreso;
+  final Egreso egreso;
   final List<MaterialEntry> materialEntries;
-  final num total;
   final _materialService = MaterialService.instance;
 
   @override
   Widget build(BuildContext context) {
     return PageWrapper(
       appBar: AppBar(
-        title: Text("Detalles del Ingreso"),
+        title: Text("Detalles del Egreso"),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         leading: IconButton(
@@ -53,13 +51,11 @@ class IngresoDetailsPage extends StatelessWidget {
             child: ListView(
               children: [
                 FieldLabel("Detalle:"),
-                Text(ingreso.detalle),
+                Text(egreso.detalle),
                 FieldLabel("Creado el:"),
-                Text(formatDateAmPm(ingreso.fechaCreado)),
-                FieldLabel("Confirmado el:"),
-                Text(formatDateAmPm(ingreso.fechaConfirmado)),
-                FieldLabel("Nombre del vendedor:"),
-                Text(ingreso.nombreVendedor),
+                Text(formatDateAmPm(egreso.fechaCreado)),
+                FieldLabel("Nombre del cliente:"),
+                Text(egreso.nombreCliente),
                 FieldLabel("Materiales:"),
                 ListView.builder(
                   shrinkWrap: true,
@@ -94,7 +90,7 @@ class IngresoDetailsPage extends StatelessWidget {
                       ),
                 ),
                 FieldLabel("Total:"),
-                Text("₡${formatNum(total)}"),
+                Text("₡${formatNum(egreso.total)}"),
               ],
             ),
           );

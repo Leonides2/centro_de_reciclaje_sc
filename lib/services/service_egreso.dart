@@ -31,7 +31,11 @@ class EgresoService {
     }
 
     final db = await dbService.database;
-    final egresos = (await db.query("Egreso")).map(toEgreso).toList();
+    final egresos =
+        (await db.query(
+          "Egreso",
+          orderBy: "datetime(FechaCreado) DESC",
+        )).map(toEgreso).toList();
 
     egresosCache = egresos;
     log(egresos.toString());
@@ -86,9 +90,16 @@ class EgresoService {
       final material = await materialService.getMaterial(entry.idMaterial);
 
       if (material.stock - entry.peso < 0) {
-        throw "No hay stock suficiente para el material ${material.nombre}";
+        throw "No hay stock suficiente para el material ${material.nombre} (Stock actual: ${material.stock})";
       }
     }
+
+    final idEgreso = await db.insert("Egreso", {
+      "nombreVendedor": nombreCliente,
+      "total": total,
+      "detalle": detalle,
+      "fechaCreado": DateTime.now().toLocal().toString(),
+    });
 
     for (var entry in materialEntries) {
       final material = await materialService.getMaterial(entry.idMaterial);
@@ -99,14 +110,13 @@ class EgresoService {
         material.precioKilo,
         material.stock - entry.peso,
       );
-    }
 
-    await db.insert("Egreso", {
-      "nombreVendedor": nombreCliente,
-      "total": total,
-      "detalle": detalle,
-      "fechaCreado": DateTime.now().toLocal().toString(),
-    });
+      db.insert("MaterialEgreso", {
+        "IdMaterial": entry.idMaterial,
+        "IdEgreso": idEgreso,
+        "Peso": entry.peso,
+      });
+    }
 
     materialService.clearMaterialsCache();
     _clearEgresosCache();
