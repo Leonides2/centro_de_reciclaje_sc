@@ -3,10 +3,12 @@ import 'package:centro_de_reciclaje_sc/core/input_validators.dart';
 import 'package:centro_de_reciclaje_sc/core/num_format.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_field_label.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_wrapper.dart';
+import 'package:centro_de_reciclaje_sc/core/widgets/widget_send_email_form.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_wave_loading_animation.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_draft_or_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material_entry.dart';
+import 'package:centro_de_reciclaje_sc/services/service_email.dart';
 import 'package:centro_de_reciclaje_sc/services/service_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/services/service_material.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +26,7 @@ class DraftIngresoDetailsPage extends StatelessWidget {
   final _materials = MaterialService.instance.getMaterials();
 
   final ingresoService = IngresoService.instance;
+  final _emailService = EmailService.instance;
 
   final _formKey = GlobalKey<EditMaterialFormsState>();
 
@@ -132,6 +135,27 @@ class DraftIngresoDetailsPage extends StatelessWidget {
                       ),
                     )
                     : const SizedBox.shrink(),
+                ElevatedButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder:
+                          (context) => SendEmailForm(
+                            sendFunction: (email) async {
+                              _emailService.sendIngresoReceipt(
+                                draftIngreso,
+                                materialEntries,
+                                email,
+                              );
+                            },
+                            title:
+                                "Ingrese el correo electrónico del recipiente de la factura",
+                            sendText: "Enviar factura",
+                          ),
+                    );
+                  },
+                  child: Text("Generar factura"),
+                ),
               ],
             ),
           );

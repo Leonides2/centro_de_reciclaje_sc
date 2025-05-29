@@ -1,8 +1,8 @@
 import 'package:centro_de_reciclaje_sc/core/format_date.dart';
 import 'package:centro_de_reciclaje_sc/core/num_format.dart';
-import 'package:centro_de_reciclaje_sc/core/show_error_dialog.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_field_label.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_wrapper.dart';
+import 'package:centro_de_reciclaje_sc/core/widgets/widget_send_email_form.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_wave_loading_animation.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_egreso.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material_entry.dart';
@@ -96,20 +96,23 @@ class EgresoDetailsPage extends StatelessWidget {
                 FieldLabel("Total:"),
                 Text("₡${formatNum(egreso.total)}"),
                 ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      await _emailService.sendEgresoReceipt(
-                        egreso,
-                        materialEntries,
-                        "juanjosecorella2004@gmail.com",
-                      );
-                    } catch (e) {
-                      if (!context.mounted) {
-                        return;
-                      }
-
-                      showErrorDialog(context, e.toString());
-                    }
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder:
+                          (context) => SendEmailForm(
+                            sendFunction: (email) async {
+                              _emailService.sendEgresoReceipt(
+                                egreso,
+                                materialEntries,
+                                email,
+                              );
+                            },
+                            title:
+                                "Ingrese el correo electrónico del recipiente de la factura",
+                            sendText: "Enviar factura",
+                          ),
+                    );
                   },
                   child: Text("Generar factura"),
                 ),
