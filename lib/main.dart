@@ -1,4 +1,5 @@
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_wrapper.dart';
+import 'package:centro_de_reciclaje_sc/presentation/Pages/page_egresos.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_ingresos.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_materials.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_reportes.dart';
@@ -83,7 +84,7 @@ class _HomePageState extends State<HomePage> {
       materialsPageId => MaterialsPage(),
       homePageId => _buildHomePage(),
       ingresosPageId => IngresosPage(),
-      egresosPageId => Placeholder(),
+      egresosPageId => EgresosPage(),
       reportesPageId => ReportesPage(),
       perfilPageId => ProfilePage(
         onLogout: widget.onLogout,
@@ -135,10 +136,9 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
       ),
-      body: const Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(
           children: [
             Text(
               '¡Bienvenido!',
