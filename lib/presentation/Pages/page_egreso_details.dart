@@ -1,10 +1,12 @@
 import 'package:centro_de_reciclaje_sc/core/format_date.dart';
 import 'package:centro_de_reciclaje_sc/core/num_format.dart';
+import 'package:centro_de_reciclaje_sc/core/show_error_dialog.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_field_label.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_wrapper.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_wave_loading_animation.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_egreso.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material_entry.dart';
+import 'package:centro_de_reciclaje_sc/services/service_email.dart';
 import 'package:centro_de_reciclaje_sc/services/service_material.dart';
 import 'package:flutter/material.dart';
 
@@ -18,6 +20,8 @@ class EgresoDetailsPage extends StatelessWidget {
   final Egreso egreso;
   final List<MaterialEntry> materialEntries;
   final _materialService = MaterialService.instance;
+
+  final _emailService = EmailService.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -91,6 +95,24 @@ class EgresoDetailsPage extends StatelessWidget {
                 ),
                 FieldLabel("Total:"),
                 Text("₡${formatNum(egreso.total)}"),
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      await _emailService.sendEgresoReceipt(
+                        egreso,
+                        materialEntries,
+                        "juanjosecorella2004@gmail.com",
+                      );
+                    } catch (e) {
+                      if (!context.mounted) {
+                        return;
+                      }
+
+                      showErrorDialog(context, e.toString());
+                    }
+                  },
+                  child: Text("Generar factura"),
+                ),
               ],
             ),
           );
