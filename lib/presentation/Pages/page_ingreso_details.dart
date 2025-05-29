@@ -107,7 +107,7 @@ class IngresoDetailsPage extends StatelessWidget {
                       builder:
                           (context) => SendEmailForm(
                             sendFunction: (email) async {
-                              _emailService.sendIngresoReceipt(
+                              await _emailService.sendIngresoReceipt(
                                 await _draftIngresoService.getDraftIngreso(
                                   ingreso.id,
                                 ),

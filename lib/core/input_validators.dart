@@ -25,7 +25,7 @@ String? validateEmail(String? s) {
     return "Campo requerido";
   }
 
-  if (!EmailValidator.validate(s!)) {
+  if (!EmailValidator.validate(s)) {
     return "Dirección de correo inváilida";
   }
 

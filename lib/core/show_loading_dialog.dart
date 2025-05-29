@@ -8,7 +8,7 @@ void showLoadingDialog(BuildContext context) {
     context: context,
     builder:
         (context) => PopScope(
-          canPop: true, // TODO: change to false...
+          canPop: false,
           child: Center(
             child: SizedBox(
               height: 80,

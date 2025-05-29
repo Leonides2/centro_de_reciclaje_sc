@@ -142,7 +142,7 @@ class DraftIngresoDetailsPage extends StatelessWidget {
                       builder:
                           (context) => SendEmailForm(
                             sendFunction: (email) async {
-                              _emailService.sendIngresoReceipt(
+                              await _emailService.sendIngresoReceipt(
                                 draftIngreso,
                                 materialEntries,
                                 email,

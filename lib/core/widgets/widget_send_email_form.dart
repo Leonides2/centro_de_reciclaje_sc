@@ -1,10 +1,7 @@
 import 'package:centro_de_reciclaje_sc/core/input_validators.dart';
 import 'package:centro_de_reciclaje_sc/core/show_error_dialog.dart';
 import 'package:centro_de_reciclaje_sc/core/show_loading_dialog.dart';
-import 'package:centro_de_reciclaje_sc/core/widgets/widget_wave_loading_animation.dart';
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class SendEmailForm extends StatefulWidget {
   const SendEmailForm({

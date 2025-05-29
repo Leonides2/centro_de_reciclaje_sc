@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:centro_de_reciclaje_sc/features/Models/model_draft_or_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_egreso.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material_entry.dart';
@@ -60,9 +58,7 @@ class EmailService {
   Future<void> _sendEmail(Message message) async {
     final smtpServer = gmail(username, password);
 
-    final sendReport = await send(message, smtpServer);
-    log('Message sent: ${sendReport.toString()}');
-    // On fail: throws MailerException
+    await send(message, smtpServer);
 
     var connection = PersistentConnection(smtpServer);
 

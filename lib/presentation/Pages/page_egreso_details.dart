@@ -102,7 +102,7 @@ class EgresoDetailsPage extends StatelessWidget {
                       builder:
                           (context) => SendEmailForm(
                             sendFunction: (email) async {
-                              _emailService.sendEgresoReceipt(
+                              await _emailService.sendEgresoReceipt(
                                 egreso,
                                 materialEntries,
                                 email,
