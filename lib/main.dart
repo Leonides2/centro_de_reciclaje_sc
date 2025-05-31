@@ -6,10 +6,13 @@ import 'package:centro_de_reciclaje_sc/presentation/Pages/page_reportes.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/auth/page_login.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/profile/page_profile.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_users.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async {
+   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MainApp());
 }
 
