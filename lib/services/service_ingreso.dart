@@ -113,7 +113,7 @@ class IngresoService {
     );
 
     DraftIngresoService.instance.clearDraftIngresosCache();
-    MaterialService.instance.clearMaterialsCache();
+    //MaterialService.instance.clearMaterialsCache();
     clearIngresosCache();
   }
 }

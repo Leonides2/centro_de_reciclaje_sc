@@ -35,7 +35,12 @@ class _SendEmailFormState extends State<SendEmailForm> {
   Widget build(BuildContext context) {
     return AlertDialog(
       icon: Icon(Icons.email),
-      title: Text(widget.title),
+      title: Text(
+        widget.title,
+        style: TextStyle(
+          fontSize: 18,
+        ),
+      ),
       content: Form(
         key: _formKey,
         child: Padding(
@@ -54,7 +59,6 @@ class _SendEmailFormState extends State<SendEmailForm> {
           ),
         ),
       ),
-      actionsAlignment: MainAxisAlignment.spaceAround,
       actions: [
         ElevatedButton(
           onPressed: () {
@@ -84,20 +88,18 @@ class _SendEmailFormState extends State<SendEmailForm> {
               Navigator.pop(context);
               showDialog(
                 context: context,
-                builder:
-                    (context) => AlertDialog(
-                      icon: Icon(Icons.check),
-                      title: Text("La factura fué enviada satisfactoriamente"),
-                      actionsAlignment: MainAxisAlignment.center,
-                      actions: [
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: Text("Ok"),
-                        ),
-                      ],
+                builder: (context) => AlertDialog(
+                  icon: Icon(Icons.check),
+                  title: Text("La factura fué enviada satisfactoriamente"),
+                  actions: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text("Ok"),
                     ),
+                  ],
+                ),
               );
             } catch (e) {
               if (!context.mounted) {
