@@ -88,11 +88,22 @@ void createDatabase(Database db, int version) async {
           IdEgreso INTEGER NOT NULL,
           Peso REAL NOT NULL
         );''');
+
+  await db.execute('''CREATE TABLE Usuario (
+          Id INTEGER PRIMARY KEY AUTOINCREMENT,
+          Nombre TEXT NOT NULL,
+          LastName1 TEXT,
+          LastName2 TEXT,
+          Email TEXT NOT NULL UNIQUE,
+          Password TEXT NOT NULL,
+          ProfilePictureUrl TEXT
+        );''');
 }
 
 
 Future<void> deleteLocalDatabase() async {
   final dbPath = await getDatabasesPath();
+  print("\n\n" + "eliminando en path: " + dbPath );
   final path = join(dbPath, 'db_reciclaje.db');
   await deleteDatabase(path);
 }

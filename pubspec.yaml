@@ -17,6 +17,7 @@ dependencies:
   email_validator: ^3.0.0
   firebase_core: ^2.24.0
   firebase_database: ^10.4.0  # Para Realtime Database
+  crypto: ^3.0.3
 
 dev_dependencies:
   flutter_test:

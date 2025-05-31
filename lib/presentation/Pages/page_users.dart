@@ -1,5 +1,6 @@
 import 'package:centro_de_reciclaje_sc/core/input_validators.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_wrapper.dart';
+import 'package:centro_de_reciclaje_sc/services/service_user.dart';
 import 'package:flutter/material.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_users_form.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_user.dart';
@@ -12,22 +13,28 @@ class UsersPage extends StatefulWidget {
 }
 
 class _UsersPageState extends State<UsersPage> {
-  List<User> users = [
-    User(id: 1, name1: "Juan", lastName1: "Pérez", email: "juan@example.com"),
-    User(
-      id: 2,
-      name1: "María",
-      lastName1: "Rodríguez",
-      email: "maria@example.com",
-    ),
-  ];
+  List<User> users = [];
 
-  void _deleteUser(int index) {
-    // TODO: Implement logic
+  final userService = UserService.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUsers();
+  }
+
+  Future<void> _fetchUsers() async {
+    final loadedUsers = await userService.getUsers();
     setState(() {
-      users.removeAt(index);
+      users = loadedUsers;
     });
   }
+
+  void _deleteUser(int index) async {
+  final user = users[index];
+  await userService.deleteUser(user.id);
+  await _fetchUsers();
+}
 
   void _showAddUserDialog() {
     showDialog(
@@ -37,6 +44,7 @@ class _UsersPageState extends State<UsersPage> {
         String lastName1 = "";
         String lastName2 = "";
         String email = "";
+        String password = "";
 
         final _formKey = GlobalKey<FormState>();
 
@@ -69,6 +77,12 @@ class _UsersPageState extends State<UsersPage> {
                     ),
                     onChanged: (value) => email = value,
                   ),
+                  TextFormField(
+                    validator: validateNotEmpty,
+                    decoration: InputDecoration(labelText: "Contraseña"),
+                    obscureText: true,
+                    onChanged: (value) => password = value,
+                  ),
                 ],
               ),
             ),
@@ -84,8 +98,7 @@ class _UsersPageState extends State<UsersPage> {
                 if (!_formKey.currentState!.validate()) {
                   return;
                 }
-
-                _addUser(name, lastName1, lastName2, email);
+                _addUser(name, lastName1, lastName2, email, password);
                 Navigator.pop(context);
               },
               child: Text("Añadir"),
@@ -96,19 +109,21 @@ class _UsersPageState extends State<UsersPage> {
     );
   }
 
-  void _addUser(String name, String lastName1, String lastName2, String email) {
-    // TODO: Implement logic
-    setState(() {
-      users.add(
-        User(
-          id: users.length + 1,
-          name1: name,
-          lastName1: lastName1,
-          lastName2: lastName2,
-          email: email,
-        ),
-      );
-    });
+  void _addUser(
+    String name,
+    String lastName1,
+    String lastName2,
+    String email,
+    String password,
+  ) async {
+    await userService.registerUser(
+      name1: name,
+      lastName1: lastName1,
+      lastName2: lastName2,
+      email: email,
+      password: password,
+    );
+    await _fetchUsers();
   }
 
   @override

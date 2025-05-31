@@ -16,7 +16,6 @@ class DraftOrIngresoService {
   }
 
   Future<List<DraftOrIngreso>> getDraftOrIngresosFiltered() async {
-    // TODO: Tal vez deberia de simplemente hacerse un query con un where...
 
     final ingresos = await ingresoService.getIngresos();
     final draftIngresos = await draftIngresoService.getDraftIngresos();

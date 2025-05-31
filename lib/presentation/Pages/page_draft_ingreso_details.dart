@@ -8,6 +8,7 @@ import 'package:centro_de_reciclaje_sc/core/widgets/widget_wave_loading_animatio
 import 'package:centro_de_reciclaje_sc/features/Models/model_draft_or_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material_entry.dart';
+
 import 'package:centro_de_reciclaje_sc/services/service_email.dart';
 import 'package:centro_de_reciclaje_sc/services/service_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/services/service_material.dart';
@@ -84,21 +85,33 @@ class DraftIngresoDetailsPage extends StatelessWidget {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(Icons.work),
-                                      FieldLabel(
-                                        snapshot.data!
-                                            .firstWhere(
-                                              (e) =>
-                                                  e.id ==
-                                                  materialEntries[i].idMaterial,
-                                            )
-                                            .nombre,
+                                      FutureBuilder<List<RecyclingMaterial>>(
+                                        future:
+                                            MaterialService.instance
+                                                .getMaterials(),
+                                        builder: (context, snapshot) {
+                                          if (!snapshot.hasData)
+                                            return SizedBox();
+                                          final material = snapshot.data!
+                                              .firstWhere(
+                                                (e) =>
+                                                    e.id ==
+                                                    materialEntries[i]
+                                                        .idMaterial,
+                                                orElse:
+                                                    () => RecyclingMaterial(
+                                                      id: 0,
+                                                      nombre: "Desconocido",
+                                                      precioKilo: 0,
+                                                      stock: 0,
+                                                    ),
+                                              );
+                                          return FieldLabel(material.nombre);
+                                        },
                                       ),
                                     ],
                                   ),
-
-                                  Text(
-                                    "${formatNum(materialEntries[i].peso)} Kg",
-                                  ),
+                                  Text("${materialEntries[i].peso} Kg"),
                                 ],
                               ),
                             ),

@@ -1,5 +1,6 @@
 import 'package:centro_de_reciclaje_sc/core/input_validators.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_wrapper.dart';
+import 'package:centro_de_reciclaje_sc/services/service_user.dart';
 import 'package:flutter/material.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_user.dart';
 
@@ -14,13 +15,16 @@ class UserFormPage extends StatefulWidget {
   UserFormPageState createState() => UserFormPageState();
 }
 
+
 class UserFormPageState extends State<UserFormPage> {
   late String _selectedRole;
   late TextEditingController nameController;
   late TextEditingController lastNameController;
   late TextEditingController lastName1Controller;
   late TextEditingController emailController;
-  bool _isEditing = false; // 👈 Variable interna de edición.
+  late TextEditingController passwordController; // Nuevo
+  bool _isEditing = false;
+  final userService = UserService.instance;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -32,9 +36,18 @@ class UserFormPageState extends State<UserFormPage> {
     lastNameController = TextEditingController(text: widget.user.lastName1);
     lastName1Controller = TextEditingController(text: widget.user.lastName2);
     emailController = TextEditingController(text: widget.user.email);
-    _isEditing =
-        widget
-            .isEditing; // 👈 Define si la pantalla inicia en edición o solo detalles.
+    passwordController = TextEditingController(); // Nuevo
+    _isEditing = widget.isEditing;
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    lastNameController.dispose();
+    lastName1Controller.dispose();
+    emailController.dispose();
+    passwordController.dispose(); // Nuevo
+    super.dispose();
   }
 
   @override
@@ -53,7 +66,7 @@ class UserFormPageState extends State<UserFormPage> {
               CircleAvatar(radius: 40, child: Icon(Icons.person, size: 40)),
               SizedBox(height: 20),
 
-              // Campos de texto (habilitados solo si _isEditing es true)
+              // Campos de texto
               TextFormField(
                 controller: nameController,
                 validator: validateNotEmpty,
@@ -91,26 +104,32 @@ class UserFormPageState extends State<UserFormPage> {
                 enabled: _isEditing,
               ),
 
+              // Campo de contraseña solo si está en edición
+              if (_isEditing)
+                TextFormField(
+                  controller: passwordController,
+                  decoration: InputDecoration(
+                    labelText: "Nueva contraseña (opcional)",
+                    labelStyle: TextStyle(color: Colors.black87),
+                  ),
+                  obscureText: true,
+                ),
+
               SizedBox(height: 20),
 
               // Selector de Roles (editable solo si _isEditing es true)
               DropdownButton<String>(
                 value: _selectedRole,
-                items:
-                    ["Super Admin", "Admin", "Usuario"]
-                        .map(
-                          (role) =>
-                              DropdownMenuItem(value: role, child: Text(role)),
-                        )
-                        .toList(),
-                onChanged:
-                    _isEditing
-                        ? (role) {
-                          setState(() {
-                            _selectedRole = role!;
-                          });
-                        }
-                        : null,
+                items: ["Super Admin", "Admin", "Usuario"]
+                    .map((role) => DropdownMenuItem(value: role, child: Text(role)))
+                    .toList(),
+                onChanged: _isEditing
+                    ? (role) {
+                        setState(() {
+                          _selectedRole = role!;
+                        });
+                      }
+                    : null,
               ),
 
               SizedBox(height: 20),
@@ -118,16 +137,23 @@ class UserFormPageState extends State<UserFormPage> {
               // Botón para guardar cambios cuando está en edición
               if (_isEditing)
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (!_formKey.currentState!.validate()) {
                       return;
                     }
 
-                    widget.user.name1 = nameController.text;
-                    widget.user.lastName1 = lastNameController.text;
-                    widget.user.lastName2 = lastName1Controller.text;
-                    widget.user.email = emailController.text;
-                    Navigator.pop(context, widget.user);
+                    await userService.editUser(
+                      id: widget.user.id,
+                      name1: nameController.text,
+                      lastName1: lastNameController.text,
+                      lastName2: lastName1Controller.text,
+                      email: emailController.text,
+                      password: passwordController.text.isNotEmpty
+                          ? passwordController.text
+                          : null, // Solo cambia si se ingresó
+                      profilePictureUrl: widget.user.profilePictureUrl,
+                    );
+                    if (context.mounted) Navigator.pop(context, widget.user);
                   },
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
                   child: Text("Guardar", style: TextStyle(color: Colors.white)),
