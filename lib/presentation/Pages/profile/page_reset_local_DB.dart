@@ -27,13 +27,34 @@ class ResetLocalDbPage extends StatelessWidget {
         foregroundColor: Colors.white,
       ),
       body: Center(
-        child: ElevatedButton.icon(
-          icon: Icon(Icons.delete_forever),
-          label: Text('Borrar base de datos local'),
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-          onPressed: () async {
-            await _deleteLocalDatabase(context);
-          },
+        child: Padding(
+          padding: const EdgeInsets.all(40),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 20,
+            children: [
+              Text(
+                'Esta acción eliminará la base de datos local y sincronizará los datos al volver a abrir las páginas.'
+                '\n\nAsegúrate de que tienes una conexión a internet activa para que la sincronización funcione correctamente.',
+                
+                textAlign: TextAlign.left,
+                style: TextStyle(fontSize: 18),
+              ),
+              ElevatedButton.icon(
+                icon: Icon(Icons.delete_forever, 
+                color: Colors.white
+                ),
+                label: Text('Borrar base de datos local', style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white,
+                  )),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                onPressed: () async {
+                  await _deleteLocalDatabase(context);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
