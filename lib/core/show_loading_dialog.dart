@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-/// MUST be dismissed manually using Navigator.pop(context)
+/// Shows a loading animation in the center of the screen and prevents the user from interacting with the
+/// rest of the app while a `Future` is `await`ed
+///
+/// *Must* be dismissed manually using `Navigator.pop(context)`
 void showLoadingDialog(BuildContext context) {
   showDialog(
     barrierDismissible: false,

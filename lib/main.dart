@@ -91,9 +91,7 @@ class _HomePageState extends State<HomePage> {
       ingresosPageId => IngresosPage(),
       egresosPageId => EgresosPage(),
       reportesPageId => ReportesPage(),
-      perfilPageId => ProfilePage(
-        onLogout: widget.onLogout,
-      ), // Página de perfil
+      perfilPageId => ProfilePage(onLogout: widget.onLogout),
       _ => _buildPlaceholderPage('Página no encontrada', Icons.error),
     };
 
