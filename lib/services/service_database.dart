@@ -89,3 +89,10 @@ void createDatabase(Database db, int version) async {
           Peso REAL NOT NULL
         );''');
 }
+
+
+Future<void> deleteLocalDatabase() async {
+  final dbPath = await getDatabasesPath();
+  final path = join(dbPath, 'db_reciclaje.db');
+  await deleteDatabase(path);
+}

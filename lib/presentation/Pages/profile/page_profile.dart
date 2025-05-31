@@ -1,4 +1,5 @@
 
+import 'package:centro_de_reciclaje_sc/presentation/Pages/profile/page_reset_local_DB.dart';
 import 'package:centro_de_reciclaje_sc/presentation/UI/ui_button.dart';
 import 'package:centro_de_reciclaje_sc/presentation/UI/ui_text_card.dart';
 import 'package:centro_de_reciclaje_sc/presentation/UI/ui_text_profile_title.dart';
@@ -65,6 +66,15 @@ class ProfilePage extends StatelessWidget {
               ),
             TextCard(text: 'Editar perfil',),
             TextCard(text: 'Cambiar contraseña',),
+            TextCard(
+              text: 'Resetear base de datos local',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ResetLocalDbPage()),
+                );
+              },
+            ),
             UIButton(label: 'Cerrar sesión', onPressed: onLogout)
           ],
         ),
