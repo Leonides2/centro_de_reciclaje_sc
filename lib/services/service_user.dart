@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:math';
+import 'package:centro_de_reciclaje_sc/services/service_email.dart';
 import 'package:crypto/crypto.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_user.dart';
 import 'package:centro_de_reciclaje_sc/services/service_database.dart';
@@ -225,4 +227,55 @@ class UserService {
     }
     return null;
   }
+
+
+  Future<void> resetPasswordAndSendEmail(String email) async {
+  // 1. Buscar usuario por email en Firebase
+  final snapshot = await dbRef.orderByChild("email").equalTo(email).get();
+  if (!snapshot.exists) {
+    throw Exception("No existe un usuario con ese correo.");
+  }
+
+  final data = Map<String, dynamic>.from(snapshot.value as Map);
+  final entry = data.entries.first;
+  final userKey = entry.key;
+  final userData = Map<String, dynamic>.from(entry.value);
+
+  // 2. Generar contraseña aleatoria de 8 caracteres
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  final rand = Random.secure();
+  String newPassword = List.generate(8, (_) => chars[rand.nextInt(chars.length)]).join();
+
+  // 3. Hashear la contraseña
+  final passwordHash = hashPassword(newPassword);
+
+  // 4. Actualizar en Firebase
+  await dbRef.child(userKey).update({"passwordHash": passwordHash});
+
+  // 5. Actualizar en SQLite (si existe localmente)
+  final db = await dbService.database;
+  await db.update(
+    "Usuario",
+    {"Password": passwordHash},
+    where: "Email = ?",
+    whereArgs: [email],
+  );
+
+  // 6. Enviar correo con la nueva contraseña
+  final text =
+    '''
+    <h2>Recuperación de contraseña</h2>
+    <p>Hola ${userData["name1"] ?? ""},</p>
+    <p>Tu nueva contraseña es: <b>$newPassword</b></p>
+    <p>Por favor, cámbiala después de iniciar sesión.</p>
+    <p>Centro de Reciclaje de Santa Cruz</p>
+    ''';
+
+    final title = "Recuperación de contraseña - Centro de Reciclaje SC";
+  await EmailService.instance.sendNewPassword( 
+    email,
+    text,
+    title,
+  );
+}
 }

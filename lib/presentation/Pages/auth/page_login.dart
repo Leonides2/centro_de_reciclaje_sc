@@ -1,5 +1,5 @@
-import 'dart:math';
 
+import 'package:centro_de_reciclaje_sc/presentation/Pages/auth/page_get_new_password.dart';
 import 'package:centro_de_reciclaje_sc/providers/UserProvider.dart';
 import 'package:centro_de_reciclaje_sc/services/service_user.dart';
 import 'package:flutter/material.dart';
@@ -138,7 +138,9 @@ class _LoginPageState extends State<LoginPage> {
             // Botón de olvidar contraseña
             TextButton(
               onPressed:
-                  null, // Aquí puedes agregar la lógica para olvidar contraseña
+                  (){
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const GetNewPasswordPage()));
+                  }, // Aquí puedes agregar la lógica para olvidar contraseña
               child: const Text(
                 'Olvidé mi contraseña',
                 style: TextStyle(color: Color(0xFF017d1c)),

@@ -1,3 +1,5 @@
+
+
 import 'package:centro_de_reciclaje_sc/core/format_date.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_draft_or_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_egreso.dart';
@@ -57,6 +59,22 @@ class EmailService {
 
     await _sendEmail(message);
   }
+
+  Future<void> sendNewPassword(
+    String recipientEmail,
+    String text,
+    String subject,
+  ) async {
+
+     final message = EmailService.instance._createMessage(
+      recipientEmail,
+      text,
+      subject,
+      );
+  await EmailService.instance._sendEmail(message);
+  }
+
+  
 
   Future<void> _sendEmail(Message message) async {
     final smtpServer = gmail(username, password);
