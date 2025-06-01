@@ -18,6 +18,8 @@ dependencies:
   firebase_core: ^2.24.0
   firebase_database: ^10.4.0  # Para Realtime Database
   crypto: ^3.0.3
+  pdf: ^3.11.3
+  printing: ^5.14.2
 
 dev_dependencies:
   flutter_test:

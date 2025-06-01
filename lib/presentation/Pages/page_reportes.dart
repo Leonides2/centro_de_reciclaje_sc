@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_reporte_detalle.dart';
-
 class ReportesPage extends StatefulWidget {
   const ReportesPage({super.key});
 
   @override
   State<ReportesPage> createState() => _ReportesPageState();
+
+   
 }
 
 class _ReportesPageState extends State<ReportesPage> {
+  String selectedModule = 'Materiales'; // 🔹 Por defecto, "Materiales"
+  DateTime fechaInicio = DateTime.now().subtract(Duration(days: 30));
+  DateTime fechaFin = DateTime.now();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,6 +35,8 @@ class _ReportesPageState extends State<ReportesPage> {
                 color: Colors.black87,
               ),
             ),
+         
+
             const SizedBox(height: 8),
             const Text(
               'Consulta estadísticas y análisis del centro de reciclaje',
@@ -68,9 +75,62 @@ class _ReportesPageState extends State<ReportesPage> {
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
+             ), 
+
+               const SizedBox(height: 20),
+        
+  //           // 🔹 Seleccionar fechas antes de generar el reporte
+  //           Row(
+  //             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //             children: [
+  //               ElevatedButton(
+  //                 onPressed: () async {
+  //                   final DateTime? picked = await showDatePicker(
+  //                     context: context,
+  //                     initialDate: fechaInicio,
+  //                     firstDate: DateTime(2020),
+  //                     lastDate: DateTime(2100),
+  //                   );
+  //                   if (picked != null) setState(() => fechaInicio = picked);
+  //                 },
+  //                 child: Text("Fecha Inicio"),
+  //               ),
+  //               ElevatedButton(
+  //                 onPressed: () async {
+  //                   final DateTime? picked = await showDatePicker(
+  //                     context: context,
+  //                     initialDate: fechaFin,
+  //                     firstDate: DateTime(2020),
+  //                     lastDate: DateTime(2100),
+  //                   );
+  //                   if (picked != null) setState(() => fechaFin = picked);
+  //                 },
+  //                 child: Text("Fecha Fin"),
+  //               ),
+  //             ],
+  //           ),
+
+  //           const SizedBox(height: 20),
+
+  //           // 🔹 Botón para generar el reporte con el módulo y fechas seleccionadas
+  //           Center(
+  //             child: ElevatedButton(
+  //               onPressed: () async {
+  //                 await Printing.layoutPdf(
+  //                   onLayout: (format) async => await PdfGenerator.generatePdf(selectedModule, fechaInicio, fechaFin),
+  //                 );
+  //               },
+               
+  //               style: ElevatedButton.styleFrom(
+  //                 backgroundColor: Colors.green[700],
+  //                 foregroundColor: Colors.white,
+  //                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+  //              ),
+  //               child: Text('Generar Reporte'),
+  //             ),
+  //           ),
+         ],
+       ),
       ),
     );
   }

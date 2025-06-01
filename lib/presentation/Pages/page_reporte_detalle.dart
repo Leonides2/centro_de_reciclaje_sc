@@ -1,4 +1,7 @@
+
 import 'package:flutter/material.dart';
+import 'package:centro_de_reciclaje_sc/presentation/Pages/pdf_generator.dart';
+import 'package:printing/printing.dart';
 
 class ReporteDetallePage extends StatefulWidget {
   final String tipoReporte;
@@ -17,9 +20,10 @@ class ReporteDetallePage extends StatefulWidget {
 }
 
 class _ReporteDetallePageState extends State<ReporteDetallePage> {
-  DateTime selectedDate = DateTime.now();
-  DateTime currentMonth = DateTime.now();
-
+  DateTime fechaInicio = DateTime.now();
+  DateTime fechaFin = DateTime.now();
+  DateTime currentMonth = DateTime.now(); // 🔹 Asegura que currentMonth esté definido
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,71 +91,106 @@ class _ReporteDetallePageState extends State<ReporteDetallePage> {
   }
 
   Widget _buildReporteFechasCard() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Generar reporte de fechas específicas',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
+  return Card(
+    elevation: 2,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Generar reporte de fechas específicas',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 24),
 
-            // Selector de mes
-            _buildMonthSelector(),
-            const SizedBox(height: 16),
-
-            // Calendario
-            _buildCalendar(),
-            const SizedBox(height: 20),
-
-            // Botón generar
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => _generarReporteFecha(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+          // 🔹 Selección de fechas mejorada
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.calendar_today, color: Color(0xFF017d1c)),
+                  label: Text(
+                    "Inicio: ${fechaInicio.day}/${fechaInicio.month}/${fechaInicio.year}",
+                    style: const TextStyle(color: Color(0xFF017d1c)),
                   ),
-                ),
-                child: const Text(
-                  'Generar',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFF017d1c)),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  onPressed: () async {
+                    final DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: fechaInicio,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime.now(),
+                    );
+                    if (picked != null) setState(() => fechaInicio = picked);
+                  },
                 ),
               ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.calendar_today, color: Color(0xFF017d1c)),
+                  label: Text(
+                    "Fin: ${fechaFin.day}/${fechaFin.month}/${fechaFin.year}",
+                    style: const TextStyle(color: Color(0xFF017d1c)),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFF017d1c)),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  onPressed: () async {
+                    final DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: fechaFin,
+                      firstDate: fechaInicio,
+                      lastDate: DateTime.now(),
+                    );
+                    if (picked != null) setState(() => fechaFin = picked);
+                  },
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // Botón generar reporte
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => _generarReporteFecha(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Generar',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildMonthSelector() {
     final monthNames = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December',
     ];
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         IconButton(
           onPressed: () {
@@ -183,128 +222,6 @@ class _ReporteDetallePageState extends State<ReporteDetallePage> {
     );
   }
 
-  Widget _buildCalendar() {
-    return Column(
-      children: [
-        // Días de la semana
-        Row(
-          children:
-              ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-                  .map(
-                    (day) => Expanded(
-                      child: Center(
-                        child: Text(
-                          day,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                  .toList(),
-        ),
-        const SizedBox(height: 8),
-
-        // Días del mes
-        ..._buildCalendarWeeks(),
-      ],
-    );
-  }
-
-  List<Widget> _buildCalendarWeeks() {
-    final firstDayOfMonth = DateTime(currentMonth.year, currentMonth.month, 1);
-    final lastDayOfMonth = DateTime(
-      currentMonth.year,
-      currentMonth.month + 1,
-      0,
-    );
-    final firstDayWeekday = firstDayOfMonth.weekday % 7;
-
-    List<Widget> weeks = [];
-    List<Widget> currentWeek = [];
-
-    // Días del mes anterior
-    for (int i = 0; i < firstDayWeekday; i++) {
-      final day = DateTime(
-        currentMonth.year,
-        currentMonth.month,
-        1 - firstDayWeekday + i,
-      );
-      currentWeek.add(_buildCalendarDay(day, isCurrentMonth: false));
-    }
-
-    // Días del mes actual
-    for (int day = 1; day <= lastDayOfMonth.day; day++) {
-      final date = DateTime(currentMonth.year, currentMonth.month, day);
-      currentWeek.add(_buildCalendarDay(date, isCurrentMonth: true));
-
-      if (currentWeek.length == 7) {
-        weeks.add(Row(children: currentWeek));
-        currentWeek = [];
-      }
-    }
-
-    // Días del mes siguiente
-    while (currentWeek.length < 7) {
-      final day = DateTime(
-        currentMonth.year,
-        currentMonth.month + 1,
-        currentWeek.length - firstDayWeekday - lastDayOfMonth.day + 1,
-      );
-      currentWeek.add(_buildCalendarDay(day, isCurrentMonth: false));
-    }
-
-    if (currentWeek.isNotEmpty) {
-      weeks.add(Row(children: currentWeek));
-    }
-
-    return weeks;
-  }
-
-  Widget _buildCalendarDay(DateTime date, {required bool isCurrentMonth}) {
-    final isSelected =
-        selectedDate.year == date.year &&
-        selectedDate.month == date.month &&
-        selectedDate.day == date.day;
-
-    return Expanded(
-      child: GestureDetector(
-        onTap:
-            isCurrentMonth
-                ? () {
-                  setState(() {
-                    selectedDate = date;
-                  });
-                }
-                : null,
-        child: Container(
-          height: 40,
-          margin: const EdgeInsets.all(2),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.green : Colors.transparent,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Center(
-            child: Text(
-              '${date.day}',
-              style: TextStyle(
-                color:
-                    isSelected
-                        ? Colors.white
-                        : isCurrentMonth
-                        ? Colors.black
-                        : Colors.grey,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   void _generarReporteDelDia() {
     final today = DateTime.now();
     final formattedDate = '${today.day}/${today.month}/${today.year}';
@@ -320,18 +237,20 @@ class _ReporteDetallePageState extends State<ReporteDetallePage> {
     );
   }
 
-  void _generarReporteFecha() {
-    final formattedDate =
-        '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}';
-
+  void _generarReporteFecha() async {
+     // Validación: mínimo un día de diferencia
+  if (fechaFin.difference(fechaInicio).inDays < 1) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Generando reporte de ${widget.tipoReporte} para el $formattedDate',
-        ),
-        backgroundColor: widget.color,
-        duration: const Duration(seconds: 3),
+      const SnackBar(
+        content: Text('El rango de fechas debe ser de al menos un día de diferencia.'),
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 3),
       ),
+    );
+    return;
+  }
+    await Printing.layoutPdf(
+      onLayout: (format) async => await PdfGenerator.generatePdf(widget.tipoReporte, fechaInicio, fechaFin),
     );
   }
 }
