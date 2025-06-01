@@ -87,7 +87,6 @@ class UserFormPageState extends State<UserFormPage> {
               ),
               TextFormField(
                 controller: lastName1Controller,
-                validator: validateNotEmpty,
                 decoration: InputDecoration(
                   labelText: "Segundo apellido",
                   labelStyle: TextStyle(color: Colors.black87),
@@ -152,6 +151,7 @@ class UserFormPageState extends State<UserFormPage> {
                           ? passwordController.text
                           : null, // Solo cambia si se ingresó
                       profilePictureUrl: widget.user.profilePictureUrl,
+                      role: _selectedRole,
                     );
                     if (context.mounted) Navigator.pop(context, widget.user);
                   },

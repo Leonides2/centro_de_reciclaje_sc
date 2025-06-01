@@ -4,7 +4,9 @@ import 'package:centro_de_reciclaje_sc/presentation/Pages/profile/page_reset_loc
 import 'package:centro_de_reciclaje_sc/presentation/UI/ui_button.dart';
 import 'package:centro_de_reciclaje_sc/presentation/UI/ui_text_card.dart';
 import 'package:centro_de_reciclaje_sc/presentation/UI/ui_text_profile_title.dart';
+import 'package:centro_de_reciclaje_sc/providers/UserProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({
@@ -15,6 +17,8 @@ class ProfilePage extends StatelessWidget {
   final Function onLogout;
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<UserProvider>(context).user;
+
     return Scaffold(
       body: Center(
         child: Column(
@@ -51,11 +55,11 @@ class ProfilePage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           TextProfileTitle(
-                            text: 'Nombre de usuario',
+                            text: user?.name1 ?? 'Nombre de usuario',
                             color: Colors.white,
                           ),
                           TextProfileTitle(
-                            text: 'email@email.com',
+                            text: user?.email ?? 'email@email.com',
                             color: Color.fromARGB(255, 240, 240, 240)
                           ),
                         ],
@@ -87,7 +91,10 @@ class ProfilePage extends StatelessWidget {
                 );
               },
             ),
-            UIButton(label: 'Cerrar sesión', onPressed: onLogout)
+            UIButton(label: 'Cerrar sesión', onPressed: (){
+              Provider.of<UserProvider>(context, listen: false).clearUser();
+              onLogout();
+            })
           ],
         ),
       ),

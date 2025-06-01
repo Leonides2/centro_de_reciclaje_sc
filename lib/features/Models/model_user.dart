@@ -10,6 +10,7 @@ class User {
     this.email = '',
     this.profilePictureUrl,
     this.passwordHash, // Solo local
+    this.role = "Usuario",
   });
 
   int id;
@@ -20,6 +21,7 @@ class User {
   String email;
   String? profilePictureUrl;
   String? passwordHash; // Solo en SQLite
+  String role; // Puede ser "Super Admin", "Admin", "Usuario"
 }
 
 class UserRole {

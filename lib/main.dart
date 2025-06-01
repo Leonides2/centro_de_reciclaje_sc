@@ -6,16 +6,22 @@ import 'package:centro_de_reciclaje_sc/presentation/Pages/page_reportes.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/auth/page_login.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/profile/page_profile.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_users.dart';
-import 'package:centro_de_reciclaje_sc/services/service_database.dart';
+import 'package:centro_de_reciclaje_sc/providers/UserProvider.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
-   WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MainApp());
-  deleteLocalDatabase(); // Eliminar base de datos local para pruebas REMOVER ANTES DE ENTREGAR A PRODUCCIÓN
+  runApp(
+    MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => UserProvider())],
+      child: const MainApp(),
+    ),
+  );
+  //deleteLocalDatabase(); // Eliminar base de datos local para pruebas REMOVER ANTES DE ENTREGAR A PRODUCCIÓN
 }
 
 class MainApp extends StatefulWidget {
@@ -65,68 +71,72 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-const int usuariosPageId = 0;
-const int materialsPageId = 1;
-const int homePageId = 2;
-const int ingresosPageId = 3;
-const int egresosPageId = 4;
-const int reportesPageId = 5;
-const int perfilPageId = 6;
-
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = homePageId; // Iniciar en Home
-
-  void _setPageIndex(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
+  int _selectedIndex = 2; // Página de inicio por defecto
 
   @override
   Widget build(BuildContext context) {
-    final body = switch (_selectedIndex) {
-      usuariosPageId => const UsersPage(),
-      materialsPageId => MaterialsPage(),
-      homePageId => _buildHomePage(),
-      ingresosPageId => IngresosPage(),
-      egresosPageId => EgresosPage(),
-      reportesPageId => ReportesPage(),
-      perfilPageId => ProfilePage(onLogout: widget.onLogout),
-      _ => _buildPlaceholderPage('Página no encontrada', Icons.error),
-    };
+    
+    final user = Provider.of<UserProvider>(context).user;
 
-    return Scaffold(
-      body: body,
+     final List<Widget> pages = [
+      if (user?.role == "Admin") const UsersPage(),
+      const MaterialsPage(),
+      _buildHomePage(),
+      const IngresosPage(),
+      const EgresosPage(),
+      if (user?.role == "Admin") ReportesPage(),
+      ProfilePage(onLogout: widget.onLogout),
+    ];
+
+
+     final List<BottomNavigationBarItem> navItems = [
+      if (user?.role == "Admin")
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.person_add),
+          label: 'Usuarios',
+        ),
+      const BottomNavigationBarItem(
+        icon: Icon(Icons.work),
+        label: 'Materiales',
+      ),
+      const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+      const BottomNavigationBarItem(
+        icon: Icon(Icons.arrow_downward),
+        label: 'Ingresos',
+      ),
+      const BottomNavigationBarItem(
+        icon: Icon(Icons.arrow_upward),
+        label: 'Egresos',
+      ),
+      if (user?.role == "Admin")
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.analytics),
+          label: 'Reportes',
+        ),
+      const BottomNavigationBarItem(
+        icon: Icon(Icons.account_circle_rounded),
+        label: 'Perfil',
+      ),
+    ];
+    // 3. Corrige el índice si cambia el rol (por ejemplo, al cerrar sesión)
+    if (_selectedIndex >= pages.length) {
+      _selectedIndex = pages.length - 1;
+    }
+
+     return Scaffold(
+      body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
-        onTap: _setPageIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
         selectedItemColor: const Color(0xFF017d1c),
         unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_add),
-            label: 'Usuarios',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.work), label: 'Materiales'),
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.arrow_downward),
-            label: 'Ingresos',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.arrow_upward),
-            label: 'Egresos',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.analytics),
-            label: 'Reportes',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle_rounded),
-            label: 'Perfil',
-          ),
-        ],
+        items: navItems,
       ),
     );
   }

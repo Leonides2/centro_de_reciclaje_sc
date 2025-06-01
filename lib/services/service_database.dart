@@ -96,7 +96,8 @@ void createDatabase(Database db, int version) async {
           LastName2 TEXT,
           Email TEXT NOT NULL UNIQUE,
           Password TEXT NOT NULL,
-          ProfilePictureUrl TEXT
+          ProfilePictureUrl TEXT,
+          Role TEXT NOT NULL DEFAULT 'Usuario'
         );''');
 }
 
@@ -106,4 +107,6 @@ Future<void> deleteLocalDatabase() async {
   print("\n\n" + "eliminando en path: " + dbPath );
   final path = join(dbPath, 'db_reciclaje.db');
   await deleteDatabase(path);
+
+  DatabaseService._db = null;
 }
