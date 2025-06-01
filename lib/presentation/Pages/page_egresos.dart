@@ -54,10 +54,12 @@ class _EgresosPageState extends State<EgresosPage> {
           }
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Padding(
-              padding: const EdgeInsets.all(8),
-              child: Text(
-                'No se han registrado egresos en el sistema. Haga click en "añadir egresos" para comenzar.',
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text(
+                  'No se han registrado egresos en el sistema. Haga click en "añadir egresos" para comenzar.',
+                ),
               ),
             );
           }
