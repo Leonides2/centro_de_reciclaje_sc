@@ -38,15 +38,15 @@ class UserService {
   }
 
   User _fromSqlite(Map<String, Object?> e) => User(
-        id: e["Id"] as int,
-        name1: e["Nombre"] as String,
-        lastName1: e["LastName1"] as String? ?? "",
-        lastName2: e["LastName2"] as String?,
-        email: e["Email"] as String,
-        passwordHash: e["Password"] as String?,
-        profilePictureUrl: e["ProfilePictureUrl"] as String?,
-        role: e["Role"] as String? ?? "Usuario", // Asignar el rol
-      );
+    id: e["Id"] as int,
+    name1: e["Nombre"] as String,
+    lastName1: e["LastName1"] as String? ?? "",
+    lastName2: e["LastName2"] as String?,
+    email: e["Email"] as String,
+    passwordHash: e["Password"] as String?,
+    profilePictureUrl: e["ProfilePictureUrl"] as String?,
+    role: e["Role"] as String? ?? "Usuario", // Asignar el rol
+  );
 
   Future<List<User>> getUsers() async {
     // 1. Intenta obtener de Firebase
@@ -56,7 +56,10 @@ class UserService {
         final List<User> users = [];
         final data = Map<String, dynamic>.from(snapshot.value as Map);
         for (var entry in data.entries) {
-          final user = _fromFirebase(entry.key, Map<String, dynamic>.from(entry.value));
+          final user = _fromFirebase(
+            entry.key,
+            Map<String, dynamic>.from(entry.value),
+          );
           users.add(user);
           await _saveToSQLite(user, passwordHash: user.passwordHash);
         }
@@ -77,18 +80,14 @@ class UserService {
   // Guardar usuario en SQLite (con hash)
   Future<void> _saveToSQLite(User user, {String? passwordHash}) async {
     final db = await dbService.database;
-    await db.insert(
-      "Usuario",
-      {
-        "Id": user.id,
-        "Nombre": user.name1,
-        "LastName1": user.lastName1,
-        "LastName2": user.lastName2,
-        "Email": user.email,
-        "Password": passwordHash ?? user.passwordHash,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert("Usuario", {
+      "Id": user.id,
+      "Nombre": user.name1,
+      "LastName1": user.lastName1,
+      "LastName2": user.lastName2,
+      "Email": user.email,
+      "Password": passwordHash ?? user.passwordHash,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<void> registerUser({
@@ -126,74 +125,69 @@ class UserService {
     clearUsersCache();
   }
 
-   Future<void> editUser({
-  required int id,
-  required String name1,
-  String? lastName1,
-  String? lastName2,
-  required String email,
-  String? password, // Si es null, no se cambia la contraseña
-  String? profilePictureUrl,
-  String role = "Usuario", // Por defecto, el rol es "Usuario"
-}) async {
-  // Si hay nueva contraseña, hashearla
-  String? passwordHash;
-  if (password != null && password.isNotEmpty) {
-    passwordHash = hashPassword(password);
-  }
+  Future<void> editUser({
+    required int id,
+    required String name1,
+    String? lastName1,
+    String? lastName2,
+    required String email,
+    String? password, // Si es null, no se cambia la contraseña
+    String? profilePictureUrl,
+    String role = "Usuario", // Por defecto, el rol es "Usuario"
+  }) async {
+    // Si hay nueva contraseña, hashearla
+    String? passwordHash;
+    if (password != null && password.isNotEmpty) {
+      passwordHash = hashPassword(password);
+    }
 
-  // 1. Editar en Firebase
-  // Busca el usuario por email para obtener la key de Firebase
-  final snapshot = await dbRef.orderByChild("email").equalTo(email).get();
-  if (snapshot.exists) {
-    final data = Map<String, dynamic>.from(snapshot.value as Map);
-    final entry = data.entries.first;
-    final userKey = entry.key;
-    final userRef = dbRef.child(userKey);
+    // 1. Editar en Firebase
+    // Busca el usuario por email para obtener la key de Firebase
+    final snapshot = await dbRef.orderByChild("email").equalTo(email).get();
+    if (snapshot.exists) {
+      final data = Map<String, dynamic>.from(snapshot.value as Map);
+      final entry = data.entries.first;
+      final userKey = entry.key;
+      final userRef = dbRef.child(userKey);
 
-    final updateData = {
-      "name1": name1,
-      "lastName1": lastName1,
-      "lastName2": lastName2,
-      "email": email,
-      "profilePictureUrl": profilePictureUrl,
-      "role": role,
+      final updateData = {
+        "name1": name1,
+        "lastName1": lastName1,
+        "lastName2": lastName2,
+        "email": email,
+        "profilePictureUrl": profilePictureUrl,
+        "role": role,
+      };
+      if (passwordHash != null) {
+        updateData["passwordHash"] = passwordHash;
+      }
+      await userRef.update(updateData);
+    }
+
+    // 2. Editar en SQLite
+    final db = await dbService.database;
+    final updateSqlite = {
+      "Nombre": name1,
+      "LastName1": lastName1,
+      "LastName2": lastName2,
+      "Email": email,
+      "ProfilePictureUrl": profilePictureUrl,
+      "Role": role,
     };
     if (passwordHash != null) {
-      updateData["passwordHash"] = passwordHash;
+      updateSqlite["Password"] = passwordHash;
     }
-    await userRef.update(updateData);
-  }
+    await db.update("Usuario", updateSqlite, where: "Id = ?", whereArgs: [id]);
 
-  // 2. Editar en SQLite
-  final db = await dbService.database;
-  final updateSqlite = {
-    "Nombre": name1,
-    "LastName1": lastName1,
-    "LastName2": lastName2,
-    "Email": email,
-    "ProfilePictureUrl": profilePictureUrl,
-    "Role": role,
-  };
-  if (passwordHash != null) {
-    updateSqlite["Password"] = passwordHash;
+    clearUsersCache();
   }
-  await db.update(
-    "Usuario",
-    updateSqlite,
-    where: "Id = ?",
-    whereArgs: [id],
-  );
-
-  clearUsersCache();
-}
 
   Future<void> deleteUser(int id) async {
-  final db = await dbService.database;
-  await db.delete("Usuario", where: "Id = ?", whereArgs: [id]);
-  await dbRef.child(id.toString()).remove();
-  clearUsersCache();
-}
+    final db = await dbService.database;
+    await db.delete("Usuario", where: "Id = ?", whereArgs: [id]);
+    await dbRef.child(id.toString()).remove();
+    clearUsersCache();
+  }
 
   /// Autenticación universal: busca primero en Firebase, si falla usa SQLite.
   Future<User?> authenticate(String email, String password) async {
@@ -228,42 +222,42 @@ class UserService {
     return null;
   }
 
-
   Future<void> resetPasswordAndSendEmail(String email) async {
-  // 1. Buscar usuario por email en Firebase
-  final snapshot = await dbRef.orderByChild("email").equalTo(email).get();
-  if (!snapshot.exists) {
-    throw Exception("No existe un usuario con ese correo.");
-  }
+    // 1. Buscar usuario por email en Firebase
+    final snapshot = await dbRef.orderByChild("email").equalTo(email).get();
+    if (!snapshot.exists) {
+      throw Exception("No existe un usuario con ese correo.");
+    }
 
-  final data = Map<String, dynamic>.from(snapshot.value as Map);
-  final entry = data.entries.first;
-  final userKey = entry.key;
-  final userData = Map<String, dynamic>.from(entry.value);
+    final data = Map<String, dynamic>.from(snapshot.value as Map);
+    final entry = data.entries.first;
+    final userKey = entry.key;
+    final userData = Map<String, dynamic>.from(entry.value);
 
-  // 2. Generar contraseña aleatoria de 8 caracteres
-  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  final rand = Random.secure();
-  String newPassword = List.generate(8, (_) => chars[rand.nextInt(chars.length)]).join();
+    // 2. Generar contraseña aleatoria de 8 caracteres
+    const chars =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final rand = Random.secure();
+    String newPassword =
+        List.generate(8, (_) => chars[rand.nextInt(chars.length)]).join();
 
-  // 3. Hashear la contraseña
-  final passwordHash = hashPassword(newPassword);
+    // 3. Hashear la contraseña
+    final passwordHash = hashPassword(newPassword);
 
-  // 4. Actualizar en Firebase
-  await dbRef.child(userKey).update({"passwordHash": passwordHash});
+    // 4. Actualizar en Firebase
+    await dbRef.child(userKey).update({"passwordHash": passwordHash});
 
-  // 5. Actualizar en SQLite (si existe localmente)
-  final db = await dbService.database;
-  await db.update(
-    "Usuario",
-    {"Password": passwordHash},
-    where: "Email = ?",
-    whereArgs: [email],
-  );
+    // 5. Actualizar en SQLite (si existe localmente)
+    final db = await dbService.database;
+    await db.update(
+      "Usuario",
+      {"Password": passwordHash},
+      where: "Email = ?",
+      whereArgs: [email],
+    );
 
-  // 6. Enviar correo con la nueva contraseña
-  final text =
-    '''
+    // 6. Enviar correo con la nueva contraseña
+    final text = '''
     <h2>Recuperación de contraseña</h2>
     <p>Hola ${userData["name1"] ?? ""},</p>
     <p>Tu nueva contraseña es: <b>$newPassword</b></p>
@@ -272,10 +266,65 @@ class UserService {
     ''';
 
     final title = "Recuperación de contraseña - Centro de Reciclaje SC";
-  await EmailService.instance.sendNewPassword( 
-    email,
-    text,
-    title,
-  );
-}
+    await EmailService.instance.sendNewPassword(email, text, title);
+  }
+
+  Future<void> changePassword({
+    required String email,
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    final oldHash = hashPassword(oldPassword);
+    final newHash = hashPassword(newPassword);
+
+    // 1. Busca el usuario en Firebase por email
+    final snapshot = await dbRef.orderByChild("email").equalTo(email).get();
+    if (snapshot.exists) {
+      final data = Map<String, dynamic>.from(snapshot.value as Map);
+      final entry = data.entries.first;
+      final userKey = entry.key;
+      final userData = Map<String, dynamic>.from(entry.value);
+
+      // Verifica la contraseña antigua
+      if (userData["passwordHash"] != oldHash) {
+        throw Exception("La contraseña actual es incorrecta.");
+      }
+
+      // Actualiza en Firebase
+      await dbRef.child(userKey).update({"passwordHash": newHash});
+
+      // Actualiza en SQLite si existe localmente
+      final db = await dbService.database;
+      await db.update(
+        "Usuario",
+        {"Password": newHash},
+        where: "Email = ?",
+        whereArgs: [email],
+      );
+
+      clearUsersCache();
+      return;
+    }
+
+    // 2. Si no está en Firebase, intenta en SQLite
+    final db = await dbService.database;
+    final users = await db.query(
+      "Usuario",
+      where: "Email = ? AND Password = ?",
+      whereArgs: [email, oldHash],
+    );
+    if (users.isEmpty) {
+      throw Exception("Usuario no encontrado o contraseña incorrecta.");
+    }
+
+    // Actualiza en SQLite
+    await db.update(
+      "Usuario",
+      {"Password": newHash},
+      where: "Email = ?",
+      whereArgs: [email],
+    );
+
+    clearUsersCache();
+  }
 }

@@ -119,7 +119,7 @@ class UserFormPageState extends State<UserFormPage> {
               // Selector de Roles (editable solo si _isEditing es true)
               DropdownButton<String>(
                 value: _selectedRole,
-                items: ["Super Admin", "Admin", "Usuario"]
+                items: [ "Admin", "Usuario"]
                     .map((role) => DropdownMenuItem(value: role, child: Text(role)))
                     .toList(),
                 onChanged: _isEditing
