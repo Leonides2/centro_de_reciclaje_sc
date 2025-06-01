@@ -53,9 +53,7 @@ class _IngresosPageState extends State<IngresosPage> {
         future: _draftIngresos,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return Expanded(
-              child: Center(child: Text("Error: ${snapshot.error}")),
-            );
+            return  Center(child: Text("Error: ${snapshot.error}"));
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -63,10 +61,8 @@ class _IngresosPageState extends State<IngresosPage> {
           }
 
           if (snapshot.data == null || snapshot.data!.isEmpty) {
-            return Expanded(
-              child: Center(
+            return Center(
                 child: Text("No se han añadido ingresos al sistema"),
-              ),
             );
           }
 
