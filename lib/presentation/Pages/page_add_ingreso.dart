@@ -81,8 +81,7 @@ class _AddIngresoPageState extends State<AddIngresoPage> {
 
           return Form(
             key: _formKey,
-            child: Expanded(
-              child: Padding(
+            child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: ListView(
                   children: [
@@ -183,7 +182,6 @@ class _AddIngresoPageState extends State<AddIngresoPage> {
                   ],
                 ),
               ),
-            ),
           );
         },
       ),
