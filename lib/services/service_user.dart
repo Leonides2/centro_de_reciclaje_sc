@@ -5,7 +5,6 @@ import 'package:crypto/crypto.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_user.dart';
 import 'package:firebase_database/firebase_database.dart';
 
-
 class UserService {
   static final UserService instance = UserService();
   final dbRef = FirebaseDatabase.instance.ref("usuarios");
@@ -41,7 +40,10 @@ class UserService {
       final List<User> users = [];
       final data = Map<String, dynamic>.from(snapshot.value as Map);
       for (var entry in data.entries) {
-        final user = _fromFirebase(entry.key, Map<String, dynamic>.from(entry.value));
+        final user = _fromFirebase(
+          entry.key,
+          Map<String, dynamic>.from(entry.value),
+        );
         users.add(user);
       }
       return users;
@@ -61,10 +63,10 @@ class UserService {
     final newRef = dbRef.push();
     await newRef.set({
       "id": newRef.key,
-      "name1": name1,
-      "lastName1": lastName1,
-      "lastName2": lastName2,
-      "email": email,
+      "name1": name1.trim(),
+      "lastName1": lastName1 != null ? lastName1.trim() : "",
+      "lastName2": lastName2 != null ? lastName2.trim() : "",
+      "email": email.trim(),
       "passwordHash": passwordHash,
       "role": role,
     });
@@ -92,10 +94,10 @@ class UserService {
       final userRef = dbRef.child(userKey);
 
       final updateData = {
-        "name1": name1,
-        "lastName1": lastName1,
-        "lastName2": lastName2,
-        "email": email,
+        "name1": name1.trim(),
+        "lastName1": lastName1 != null ? lastName1.trim() : "",
+        "lastName2": lastName2 != null ? lastName2.trim() : "",
+        "email": email.trim(),
         "profilePictureUrl": profilePictureUrl,
         "role": role,
       };
@@ -111,19 +113,20 @@ class UserService {
   }
 
   Future<void> ensureAdminUserExists() async {
-  final users = await getUsers();
-  if (users.isEmpty) {
-    // Inserta un usuario administrador por defecto
-    await registerUser(
-      name1: "Administrador",
-      lastName1: "Principal",
-      lastName2: "",
-      email: "admin@admin.com",
-      password: "admin123", // Cambia esto por una contraseña segura en producción
-      role: "Admin",
-    );
+    final users = await getUsers();
+    if (users.isEmpty) {
+      // Inserta un usuario administrador por defecto
+      await registerUser(
+        name1: "Administrador",
+        lastName1: "Principal",
+        lastName2: "",
+        email: "admin@admin.com",
+        password:
+            "admin123", // Cambia esto por una contraseña segura en producción
+        role: "Admin",
+      );
+    }
   }
-}
 
   Future<User?> authenticate(String email, String password) async {
     final passwordHash = hashPassword(password);
@@ -149,23 +152,20 @@ class UserService {
     final userKey = entry.key;
     final userData = Map<String, dynamic>.from(entry.value);
 
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const chars =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final rand = Random.secure();
-    String newPassword = List.generate(8, (_) => chars[rand.nextInt(chars.length)]).join();
+    String newPassword =
+        List.generate(8, (_) => chars[rand.nextInt(chars.length)]).join();
     final passwordHash = hashPassword(newPassword);
 
     await dbRef.child(userKey).update({"passwordHash": passwordHash});
 
-    final text = '''
-    <h2>Recuperación de contraseña</h2>
-    <p>Hola ${userData["name1"] ?? ""},</p>
-    <p>Tu nueva contraseña es: <b>$newPassword</b></p>
-    <p>Por favor, cámbiala después de iniciar sesión.</p>
-    <p>Centro de Reciclaje de Santa Cruz</p>
-    ''';
-
-    final title = "Recuperación de contraseña - Centro de Reciclaje SC";
-    await EmailService.instance.sendNewPassword(email, text, title);
+    await EmailService.instance.sendPasswordChangeEmail(
+      userData["email"],
+      userData["name1"],
+      newPassword,
+    );
   }
 
   Future<void> changePassword({

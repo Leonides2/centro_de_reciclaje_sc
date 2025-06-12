@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cambio de Contraseña</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f6f6f6;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            background: #fff;
+            max-width: 480px;
+            margin: 40px auto;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 32px 24px;
+        }
+        h1 {
+            color: #017d1c;
+            font-size: 2em;
+            margin-bottom: 0.2em;
+        }
+        .subtitle {
+            color: #555;
+            margin-bottom: 1.5em;
+        }
+        .info {
+            color: #222;
+            font-size: 1.1em;
+            margin-bottom: 1.5em;
+        }
+        .footer {
+            color: #888;
+            font-size: 0.95em;
+            margin-top: 2em;
+            text-align: center;
+        }
+        .code {
+            background: #e8f5e9;
+            color: #017d1c;
+            font-size: 1.3em;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: inline-block;
+            letter-spacing: 2px;
+            margin: 16px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cambio de contraseña</h1>
+        <div class="subtitle">¡Hola {{nombreUsuario}}!</div>
+        <div class="info">
+            Has solicitado cambiar tu contraseña.<br>
+            Tu nueva contraseña es:
+        </div>
+        <div class="code">{{contraseña}}</div>
+        <div class="info">
+            Si no solicitaste este cambio, ignora este correo o contacta al soporte.
+        </div>
+        <div class="footer">
+            Centro de Reciclaje de Santa Cruz<br>
+            Este correo es una notificación automática.
+        </div>
+    </div>
+</body>
+</html>

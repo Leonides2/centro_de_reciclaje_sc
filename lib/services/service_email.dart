@@ -5,7 +5,7 @@ import 'package:centro_de_reciclaje_sc/features/Models/model_material_entry.dart
 import 'package:centro_de_reciclaje_sc/services/service_material.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
-import 'dart:io';
+import 'package:flutter/services.dart' show rootBundle;
 
 const String username = 'centroreciclajescapptest@gmail.com';
 const String password = 'xmdv mexu txbu pold';
@@ -52,18 +52,29 @@ class EmailService {
   await _sendEmail(message);
   }
 
-  Future<void> sendNewPassword(
-    String recipientEmail,
-    String text,
-    String subject,
-  ) async {
-    final message = EmailService.instance._createMessage(
-      recipientEmail,
-      text,
-      subject,
-    );
-    await EmailService.instance._sendEmail(message);
-  }
+  Future<void> sendPasswordChangeEmail(
+  String recipientEmail,
+  String nombreUsuario,
+  String nuevaContrasena,
+) async {
+  // Carga la plantilla HTML desde assets
+  final template = await rootBundle.loadString('assets/emailTemplates/cambio_passwrd.html');
+
+  // Reemplaza los placeholders
+  final html = template
+      .replaceAll('{{nombreUsuario}}', nombreUsuario)
+      .replaceAll('{{contraseña}}', nuevaContrasena);
+
+  // Crea el mensaje
+  final message = _createMessage(
+    recipientEmail,
+    html,
+    "Cambio de contraseña - Centro de Reciclaje SC",
+  );
+
+  // Envía el correo
+  await _sendEmail(message);
+}
 
   Future<void> _sendEmail(Message message) async {
     final smtpServer = gmail(username, password);
@@ -82,8 +93,7 @@ class EmailService {
     List<MaterialEntry> entries,
   ) async {
     // Lee la plantilla HTML desde assets
-    final template =
-        await File('assets/emailTemplates/factura_ingreso.html').readAsString();
+    final template = await rootBundle.loadString('assets/emailTemplates/factura_ingreso.html');
 
     // Obtén los materiales
     final materials = await MaterialService.instance.getMaterials();
@@ -110,7 +120,7 @@ class EmailService {
   List<MaterialEntry> entries,
 ) async {
   // Lee la plantilla HTML desde assets
-  final template = await File('assets/emailTemplates/factura_engreso.html').readAsString();
+   final template = await rootBundle.loadString('assets/emailTemplates/factura_engreso.html');
 
   // Obtén los materiales
   final materials = await MaterialService.instance.getMaterials();

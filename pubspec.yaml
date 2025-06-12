@@ -39,3 +39,5 @@ flutter:
   assets:
     - assets/images/
     - assets/emailTemplates/
+    - assets/emailTemplates/factura_ingreso.html
+    - assets/emailTemplates/factura_engreso.html
