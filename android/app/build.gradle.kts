@@ -9,7 +9,7 @@ plugins {
 android {
     namespace = "com.example.centro_de_reciclaje_sc"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.2.12479018"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
