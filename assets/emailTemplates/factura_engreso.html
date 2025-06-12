@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura de Venta</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f6f6f6;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            background: #fff;
+            max-width: 500px;
+            margin: 40px auto;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 32px 24px;
+        }
+        h1 {
+            color: #1976D2;
+            font-size: 2em;
+            margin-bottom: 0.2em;
+        }
+        .subtitle {
+            color: #555;
+            margin-bottom: 1.5em;
+        }
+        .details {
+            margin-bottom: 1.5em;
+        }
+        .details strong {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5em;
+        }
+        th, td {
+            padding: 8px 6px;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: left;
+        }
+        th {
+            background: #e3f2fd;
+            color: #1976D2;
+        }
+        .total {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #222;
+            text-align: right;
+            margin-top: 1em;
+        }
+        .footer {
+            color: #888;
+            font-size: 0.95em;
+            margin-top: 2em;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Factura de venta</h1>
+        <div class="subtitle">¡Gracias por su compra en el Centro de Reciclaje de Santa Cruz!</div>
+        <div class="details">
+            <div><strong>Cliente:</strong> {{nombreCliente}}</div>
+            <div><strong>Fecha:</strong> {{fecha}}</div>
+            <div><strong>Detalle:</strong> {{detalle}}</div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Material</th>
+                    <th>Peso (Kg)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{materiales}} <!-- Reemplaza esto por las filas de materiales -->
+            </tbody>
+        </table>
+        <div class="total">Total: ₡{{total}}</div>
+        <div class="footer">
+            Centro de Reciclaje de Santa Cruz<br>
+            Este correo es una confirmación automática de su compra.
+        </div>
+    </div>
+</body>
+</html>

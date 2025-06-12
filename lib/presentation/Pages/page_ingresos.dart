@@ -5,13 +5,16 @@ import 'package:centro_de_reciclaje_sc/features/Models/model_draft_or_ingreso.da
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_add_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_draft_ingreso_details.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_ingreso_details.dart';
+import 'package:centro_de_reciclaje_sc/providers/UserProvider.dart';
 import 'package:centro_de_reciclaje_sc/services/service_draft_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/services/service_draft_or_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/services/service_ingreso.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class IngresosPage extends StatefulWidget {
   const IngresosPage({super.key});
+  
 
   @override
   State<IngresosPage> createState() => _IngresosPageState();
@@ -21,19 +24,23 @@ class _IngresosPageState extends State<IngresosPage> {
   final draftOrIngresoService = DraftOrIngresoService.instance;
   late Future<List<DraftOrIngreso>> _draftIngresos =
       draftOrIngresoService.getDraftOrIngresosFiltered();
-
+   
   void _fetchDraftOrIngresos() {
     _draftIngresos = draftOrIngresoService.getDraftOrIngresosFiltered();
   }
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<UserProvider>(context).user;
+
     return PageWrapper(
       appBar: AppBar(
         title: Text("Ingresos"),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         actions: [
+
+          if (user != null)
           ElevatedButton(
             onPressed: () {
               Navigator.push(

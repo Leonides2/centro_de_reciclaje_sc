@@ -56,11 +56,11 @@ class ProfilePage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 TextProfileTitle(
-                                  text: user?.name1 ?? 'Nombre de usuario',
+                                  text: user?.name1 ?? 'Invitado',
                                   color: Colors.white,
                                 ),
                                 TextProfileTitle(
-                                  text: user?.email ?? 'email@email.com',
+                                  text: user?.email ?? '',
                                   color: Color.fromARGB(255, 240, 240, 240),
                                 ),
                               ],

@@ -5,8 +5,8 @@ import 'package:centro_de_reciclaje_sc/features/Models/model_material_entry.dart
 import 'package:centro_de_reciclaje_sc/services/service_material.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
+import 'dart:io';
 
-// TODO: Tomar datos de un archivo .env
 const String username = 'centroreciclajescapptest@gmail.com';
 const String password = 'xmdv mexu txbu pold';
 
@@ -21,18 +21,15 @@ class EmailService {
         ..html = html;
 
   Future<void> sendIngresoReceipt(
-    Ingreso ingreso, // <-- Cambia DraftIngreso por Ingreso
+    Ingreso ingreso,
     List<MaterialEntry> entries,
     String recipientEmail,
   ) async {
-    final materials = await MaterialService.instance.getMaterials();
+    final html = await _loadAndFillIngresoTemplate(ingreso, entries);
 
     final message = _createMessage(
       recipientEmail,
-      '<h2>${ingreso.nombreVendedor}! Esta es la factura de su venta "${ingreso.detalle}"</h2>'
-          '<ul>${entries.map((entry) => "${materials.firstWhere((m) => m.id == entry.idMaterial).nombre}: ${entry.peso} Kg").map((s) => "<li>$s</li>").fold("", (a, b) => a + b)}</ul>'
-          '<p>Total: ₡${ingreso.total}</p>'
-          '<p>Muchas gracias por su aporte al Centro de Reciclaje de Santa Cruz!</p>',
+      html,
       "Factura de su venta al Centro de Reciclaje de Santa Cruz del ${formatDateAmPm(ingreso.fechaCreado)}",
     );
 
@@ -44,18 +41,15 @@ class EmailService {
     List<MaterialEntry> entries,
     String recipientEmail,
   ) async {
-    final materials = await MaterialService.instance.getMaterials();
+    final html = await _loadAndFillEgresoTemplate(egreso, entries);
 
-    final message = _createMessage(
-      recipientEmail,
-      '<h2>${egreso.nombreCliente}! Esta es la factura de su compra "${egreso.detalle}"</h2>'
-          '<ul>${entries.map((entry) => "${materials.firstWhere((m) => m.id == entry.idMaterial).nombre}: ${entry.peso} Kg").map((s) => "<li>$s</li>").fold("", (a, b) => a + b)}</ul>'
-          '<p>Total: ₡${egreso.total}</p>'
-          '<p>Muchas gracias por su aporte al Centro de Reciclaje de Santa Cruz!</p>',
-      "Factura de su compra del Centro de Reciclaje de Santa Cruz del ${formatDateAmPm(egreso.fechaCreado)}",
-    );
+  final message = _createMessage(
+    recipientEmail,
+    html,
+    "Factura de su compra del Centro de Reciclaje de Santa Cruz del ${formatDateAmPm(egreso.fechaCreado)}",
+  );
 
-    await _sendEmail(message);
+  await _sendEmail(message);
   }
 
   Future<void> sendNewPassword(
@@ -82,4 +76,57 @@ class EmailService {
 
     await connection.close();
   }
+
+  Future<String> _loadAndFillIngresoTemplate(
+    Ingreso ingreso,
+    List<MaterialEntry> entries,
+  ) async {
+    // Lee la plantilla HTML desde assets
+    final template =
+        await File('assets/emailTemplates/factura_ingreso.html').readAsString();
+
+    // Obtén los materiales
+    final materials = await MaterialService.instance.getMaterials();
+
+    // Genera las filas de la tabla
+    final materialesHtml =
+        entries.map((entry) {
+          final nombre =
+              materials.firstWhere((m) => m.id == entry.idMaterial).nombre;
+          return "<tr><td>$nombre</td><td>${entry.peso}</td></tr>";
+        }).join();
+
+    // Reemplaza los placeholders
+    return template
+        .replaceAll('{{nombreVendedor}}', ingreso.nombreVendedor)
+        .replaceAll('{{fecha}}', formatDateAmPm(ingreso.fechaCreado))
+        .replaceAll('{{detalle}}', ingreso.detalle)
+        .replaceAll('{{materiales}}', materialesHtml)
+        .replaceAll('{{total}}', ingreso.total.toString());
+  }
+
+  Future<String> _loadAndFillEgresoTemplate(
+  Egreso egreso,
+  List<MaterialEntry> entries,
+) async {
+  // Lee la plantilla HTML desde assets
+  final template = await File('assets/emailTemplates/factura_engreso.html').readAsString();
+
+  // Obtén los materiales
+  final materials = await MaterialService.instance.getMaterials();
+
+  // Genera las filas de la tabla
+  final materialesHtml = entries.map((entry) {
+    final nombre = materials.firstWhere((m) => m.id == entry.idMaterial).nombre;
+    return "<tr><td>$nombre</td><td>${entry.peso}</td></tr>";
+  }).join();
+
+  // Reemplaza los placeholders
+  return template
+      .replaceAll('{{nombreCliente}}', egreso.nombreCliente)
+      .replaceAll('{{fecha}}', formatDateAmPm(egreso.fechaCreado))
+      .replaceAll('{{detalle}}', egreso.detalle)
+      .replaceAll('{{materiales}}', materialesHtml)
+      .replaceAll('{{total}}', egreso.total.toString());
+}
 }
