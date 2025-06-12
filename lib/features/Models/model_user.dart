@@ -2,7 +2,7 @@
 
 class User {
   User({
-    this.id = 0,
+    this.id = '',
     this.name1 = '',
     this.name2,
     this.lastName1 = '',
@@ -13,7 +13,7 @@ class User {
     this.role = "Usuario",
   });
 
-  int id;
+  String id;
   String name1;
   String? name2;
   String lastName1;
@@ -24,7 +24,7 @@ class User {
   String role; // Puede ser "Super Admin", "Admin", "Usuario"
 
    User copyWith({
-    int? id,
+    String? id,
     String? name1,
     String? name2,
     String? lastName1,

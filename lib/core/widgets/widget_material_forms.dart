@@ -176,10 +176,9 @@ class MaterialForm extends StatefulWidget {
   State<MaterialForm> createState() => MaterialFormState();
 }
 
-// TODO: When clampMaxWeightAtCurrentStock == true, make sure peso can't go above the current materials stock
 class MaterialFormState extends State<MaterialForm> {
   final pesoController = TextEditingController();
-  late int selectedMaterial = widget.materials[0].id;
+  late String selectedMaterial = widget.materials[0].id; // <-- String
 
   @override
   void initState() {
@@ -190,7 +189,6 @@ class MaterialFormState extends State<MaterialForm> {
   @override
   void dispose() {
     pesoController.dispose();
-
     super.dispose();
   }
 
@@ -208,14 +206,14 @@ class MaterialFormState extends State<MaterialForm> {
                   top: 14,
                   bottom: 14,
                 ),
-                child: DropdownMenu(
+                child: DropdownMenu<String>(
+                  // <-- Especifica tipo String
                   leadingIcon: Icon(Icons.work),
                   onSelected: (value) {
-                    if (value == null) {
-                      return;
-                    }
-
-                    selectedMaterial = value;
+                    if (value == null) return;
+                    setState(() {
+                      selectedMaterial = value;
+                    });
                     widget.onChange();
                   },
                   initialSelection: widget.materials[0].id,
@@ -223,7 +221,7 @@ class MaterialFormState extends State<MaterialForm> {
                   dropdownMenuEntries:
                       widget.materials
                           .map(
-                            (m) => DropdownMenuEntry(
+                            (m) => DropdownMenuEntry<String>(
                               value: m.id,
                               label: m.nombre,
                               leadingIcon: Icon(Icons.work),

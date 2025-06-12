@@ -7,6 +7,7 @@ import 'package:centro_de_reciclaje_sc/presentation/Pages/auth/page_login.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/profile/page_profile.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_users.dart';
 import 'package:centro_de_reciclaje_sc/providers/UserProvider.dart';
+import 'package:centro_de_reciclaje_sc/services/service_user.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  UserService.instance.ensureAdminUserExists();
   runApp(
     MultiProvider(
       providers: [ChangeNotifierProvider(create: (_) => UserProvider())],

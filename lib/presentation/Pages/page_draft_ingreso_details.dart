@@ -8,6 +8,7 @@ import 'package:centro_de_reciclaje_sc/core/widgets/widget_wave_loading_animatio
 import 'package:centro_de_reciclaje_sc/features/Models/model_draft_or_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material_entry.dart';
+import 'package:centro_de_reciclaje_sc/services/service_draft_ingreso.dart';
 
 import 'package:centro_de_reciclaje_sc/services/service_email.dart';
 import 'package:centro_de_reciclaje_sc/services/service_ingreso.dart';
@@ -27,6 +28,7 @@ class DraftIngresoDetailsPage extends StatelessWidget {
   final _materials = MaterialService.instance.getMaterials();
 
   final ingresoService = IngresoService.instance;
+  final draftIngresoService = DraftIngresoService.instance;
   final _emailService = EmailService.instance;
 
   final _formKey = GlobalKey<EditMaterialFormsState>();
@@ -100,7 +102,7 @@ class DraftIngresoDetailsPage extends StatelessWidget {
                                                         .idMaterial,
                                                 orElse:
                                                     () => RecyclingMaterial(
-                                                      id: 0,
+                                                      id: "",
                                                       nombre: "Desconocido",
                                                       precioKilo: 0,
                                                       stock: 0,
@@ -130,43 +132,55 @@ class DraftIngresoDetailsPage extends StatelessWidget {
                     ? Align(
                       alignment: Alignment.center,
                       child: ElevatedButton(
-                        onPressed: () async {
-                          if (!_formKey.currentState!.validate()) {
-                            return;
-                          }
-
-                          await ingresoService.registerIngreso(
-                            draftIngreso.id,
-                            _formKey.currentState!.getMaterialEntries(),
-                          );
-
-                          if (context.mounted) {
-                            Navigator.pop(context);
-                          }
-                        },
-                        child: Text("Confirmar materiales"),
-                      ),
+                          onPressed: () async {
+                            if (!_formKey.currentState!.validate()) {
+                              return;
+                            }
+                            // Confirmar draft y crear ingreso
+                            await draftIngresoService.confirmarDraftIngreso(
+                              DraftIngreso(
+                                id: draftIngreso.id,
+                                nombreVendedor: draftIngreso.nombreVendedor,
+                                detalle: draftIngreso.detalle,
+                                fechaCreado: draftIngreso.fechaCreado,
+                                confirmado: true,
+                                total: draftIngreso.total,
+                                materiales: _formKey.currentState!.getMaterialEntries(),
+                              ),
+                            );
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                            }
+                          },
+                          child: Text("Confirmar materiales"),
+                        ),
                     )
                     : const SizedBox.shrink(),
                 ElevatedButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder:
-                          (context) => SendEmailForm(
-                            sendFunction: (email) async {
-                              await _emailService.sendIngresoReceipt(
-                                draftIngreso,
-                                materialEntries,
-                                email,
-                              );
-                            },
-                            title:
-                                "Ingrese el correo electrónico del recipiente de la factura",
-                            sendText: "Enviar factura",
-                          ),
-                    );
-                  },
+                  onPressed: draftIngreso.confirmado
+                      ? () async {
+                          // Buscar el ingreso confirmado relacionado a este draft
+                          final ingresos = await ingresoService.getIngresos();
+                          final ingreso = ingresos.firstWhere(
+                            (i) => i.idDraftIngreso == draftIngreso.id,
+                            orElse: () => throw Exception("Ingreso no encontrado"),
+                          );
+                          showDialog(
+                            context: context,
+                            builder: (context) => SendEmailForm(
+                              sendFunction: (email) async {
+                                await _emailService.sendIngresoReceipt(
+                                  ingreso,
+                                  ingreso.materiales,
+                                  email,
+                                );
+                              },
+                              title: "Ingrese el correo electrónico del recipiente de la factura",
+                              sendText: "Enviar factura",
+                            ),
+                          );
+                        }
+                      : null,
                   child: Text("Generar factura"),
                 ),
               ],

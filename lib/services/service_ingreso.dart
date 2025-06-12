@@ -1,12 +1,10 @@
 import 'package:centro_de_reciclaje_sc/features/Models/model_draft_or_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material_entry.dart';
-import 'package:centro_de_reciclaje_sc/services/service_database.dart';
-import 'package:centro_de_reciclaje_sc/services/service_draft_ingreso.dart';
-import 'package:centro_de_reciclaje_sc/services/service_material.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class IngresoService {
   static final IngresoService instance = IngresoService();
-  final dbService = DatabaseService.instance;
+  final dbRef = FirebaseDatabase.instance.ref("ingresos");
 
   List<Ingreso>? ingresosCache;
 
@@ -14,106 +12,94 @@ class IngresoService {
     ingresosCache = null;
   }
 
-  Future<List<Ingreso>> getIngresos() async {
-    if (ingresosCache != null) {
-      return ingresosCache!;
-    }
-
-    final db = await dbService.database;
-    final ingresos =
-        (await db.query("Ingreso", orderBy: "datetime(FechaConfirmado) DESC"))
-            .map(
-              (e) => Ingreso(
-                id: e["Id"] as int,
-                idDraftIngreso: e["IdDraftIngreso"] as int,
-                nombreVendedor: e["NombreVendedor"] as String,
-                detalle: e["Detalle"] as String,
-                fechaCreado: DateTime.parse(e["FechaCreado"] as String),
-                fechaConfirmado: DateTime.parse(e["FechaConfirmado"] as String),
-              ),
-            )
-            .toList();
-
-    ingresos.sort((a, b) => a.fechaCreado.compareTo(b.fechaCreado));
-
-    ingresosCache = ingresos;
-    return ingresos;
-  }
-
-  // TODO: Cacheo?
-  Future<List<MaterialEntry>> geIngresoMaterials(int id) async {
-    final db = await dbService.database;
-    final entries =
-        (await db.query(
-              "MaterialIngreso",
-              where: "IdIngreso = ?",
-              whereArgs: [id],
-            ))
-            .map(
-              (e) => MaterialEntry(
-                idMaterial: e["IdMaterial"] as int,
-                peso: e["Peso"] as num,
-              ),
-            )
-            .toList();
-
-    return entries;
-  }
-
-  Future<void> registerIngreso(
-    int idDraftIngreso,
-    List<MaterialEntry> materiales,
-  ) async {
-    final db = await dbService.database;
-
-    final draftIngreso =
-        (await db.query(
-              "DraftIngreso",
-              where: "Id = ?",
-              whereArgs: [idDraftIngreso],
-            ))
-            .map(
-              (e) => DraftIngreso(
-                id: e["Id"] as int,
-                nombreVendedor: e["NombreVendedor"] as String,
-                detalle: e["Detalle"] as String,
-                fechaCreado: DateTime.parse(e["FechaCreado"] as String),
-                confirmado: (e["Confirmado"] as int) != 0,
-                total: e["Total"] as num,
-              ),
-            )
-            .first;
-
-    final id = await db.insert("Ingreso", {
-      "IdDraftIngreso": draftIngreso.id,
-      "NombreVendedor": draftIngreso.nombreVendedor,
-      "Detalle": draftIngreso.detalle,
-      "FechaCreado": draftIngreso.fechaCreado.toString(),
-      "FechaConfirmado": DateTime.now().toLocal().toString(),
-    });
-
-    for (var entry in materiales) {
-      await db.insert("MaterialIngreso", {
-        "IdMaterial": entry.idMaterial,
-        "IdIngreso": id,
-        "Peso": entry.peso,
-      });
-
-      await db.rawUpdate(
-        "UPDATE Material SET Stock = Stock + ? WHERE Id = ?;",
-        [entry.peso, entry.idMaterial],
-      );
-    }
-
-    await db.update(
-      "DraftIngreso",
-      where: "Id = ?",
-      whereArgs: [idDraftIngreso],
-      {"Confirmado": true},
+  Ingreso _fromFirebase(String key, Map<dynamic, dynamic> data) {
+    return Ingreso(
+      id: key,
+      idDraftIngreso: data["idDraftIngreso"] ?? "",
+      nombreVendedor: data["nombreVendedor"] ?? "",
+      detalle: data["detalle"] ?? "",
+      fechaCreado: DateTime.parse(data["fechaCreado"]),
+      fechaConfirmado: DateTime.parse(data["fechaConfirmado"]),
+      materiales:
+          (data["materiales"] as List<dynamic>?)
+              ?.map(
+                (e) =>
+                    MaterialEntry(idMaterial: e["idMaterial"], peso: e["peso"]),
+              )
+              .toList() ??
+          [],
+      total: data["total"] ?? 0,    
+          
     );
+  }
 
-    DraftIngresoService.instance.clearDraftIngresosCache();
-    MaterialService.instance.clearMaterialsCache();
+  Future<List<Ingreso>> getIngresos() async {
+    if (ingresosCache != null) return ingresosCache!;
+    final snapshot = await dbRef.get();
+    if (snapshot.exists) {
+      final List<Ingreso> ingresos = [];
+      final data = Map<String, dynamic>.from(snapshot.value as Map);
+      for (var entry in data.entries) {
+        final ingreso = _fromFirebase(
+          entry.key,
+          Map<String, dynamic>.from(entry.value),
+        );
+        ingresos.add(ingreso);
+      }
+      ingresos.sort((a, b) => a.fechaCreado.compareTo(b.fechaCreado));
+      ingresosCache = ingresos;
+      return ingresos;
+    }
+    return [];
+  }
+
+  Future<List<MaterialEntry>> getIngresoMaterials(String ingresoId) async {
+    final snapshot = await dbRef.child(ingresoId).child("materiales").get();
+    if (snapshot.exists) {
+      final List<MaterialEntry> entries = [];
+      for (var e in (snapshot.value as List)) {
+        if (e != null) {
+          entries.add(
+            MaterialEntry(idMaterial: e["idMaterial"], peso: e["peso"]),
+          );
+        }
+      }
+      return entries;
+    }
+    return [];
+  }
+
+  Future<void> registerIngreso({
+    required String idDraftIngreso,
+    required String nombreVendedor,
+    required String detalle,
+    required DateTime fechaCreado,
+    required List<MaterialEntry> materiales,
+    required num total,
+  }) async {
+    final newRef = dbRef.push();
+    await newRef.set({
+      "idDraftIngreso": idDraftIngreso,
+      "nombreVendedor": nombreVendedor,
+      "detalle": detalle,
+      "fechaCreado": fechaCreado.toIso8601String(),
+      "fechaConfirmado": DateTime.now().toIso8601String(),
+      "materiales":
+          materiales
+              .map((e) => {"idMaterial": e.idMaterial, "peso": e.peso})
+              .toList(),
+      "total": total,
+    });
+    clearIngresosCache();
+  }
+
+  Future<void> deleteIngreso(String id) async {
+    await dbRef.child(id).remove();
+    clearIngresosCache();
+  }
+
+  Future<void> editIngreso(String id, Map<String, dynamic> updateData) async {
+    await dbRef.child(id).update(updateData);
     clearIngresosCache();
   }
 }

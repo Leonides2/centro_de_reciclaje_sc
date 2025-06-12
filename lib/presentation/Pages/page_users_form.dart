@@ -31,7 +31,7 @@ class UserFormPageState extends State<UserFormPage> {
   @override
   void initState() {
     super.initState();
-    _selectedRole = "Usuario";
+    _selectedRole =  widget.user.role; // <-- Así tomas el rol real del usuario;
     nameController = TextEditingController(text: widget.user.name1);
     lastNameController = TextEditingController(text: widget.user.lastName1);
     lastName1Controller = TextEditingController(text: widget.user.lastName2);

@@ -2,78 +2,63 @@ import 'dart:developer';
 
 import 'package:centro_de_reciclaje_sc/features/Models/model_egreso.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material_entry.dart';
-import 'package:centro_de_reciclaje_sc/services/service_database.dart';
 import 'package:centro_de_reciclaje_sc/services/service_material.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class EgresoService {
-  final dbService = DatabaseService.instance;
   static final instance = EgresoService();
+  final dbRef = FirebaseDatabase.instance.ref("egresos");
 
   List<Egreso>? egresosCache;
-  Map<int, Egreso> indexedEgresosCache = {};
 
-  void _clearEgresosCache() {
+  void clearEgresosCache() {
     egresosCache = null;
-    indexedEgresosCache = {};
   }
 
-  Egreso toEgreso(Map<String, Object?> e) => Egreso(
-    id: e["Id"] as int,
-    nombreCliente: e["NombreVendedor"] as String,
-    total: e["Total"] as num,
-    detalle: e["Detalle"] as String,
-    fechaCreado: DateTime.parse(e["FechaCreado"] as String),
-  );
+  Egreso _fromFirebase(String key, Map<dynamic, dynamic> data) {
+    return Egreso(
+      id: key,
+      nombreCliente: data["nombreCliente"] ?? "",
+      total: data["total"] ?? 0,
+      detalle: data["detalle"] ?? "",
+      fechaCreado: DateTime.parse(data["fechaCreado"]),
+    );
+  }
 
   Future<List<Egreso>> getEgresos() async {
     if (egresosCache != null) {
       return egresosCache!;
     }
-
-    final db = await dbService.database;
-    final egresos =
-        (await db.query(
-          "Egreso",
-          orderBy: "datetime(FechaCreado) DESC",
-        )).map(toEgreso).toList();
-
-    egresosCache = egresos;
-    log(egresos.toString());
-    return egresos;
-  }
-
-  Future<Egreso> getEgreso(int id) async {
-    if (indexedEgresosCache.containsKey(id)) {
-      return indexedEgresosCache[id]!;
+    final snapshot = await dbRef.get();
+    if (snapshot.exists) {
+      final List<Egreso> egresos = [];
+      final data = Map<String, dynamic>.from(snapshot.value as Map);
+      for (var entry in data.entries) {
+        final egreso = _fromFirebase(entry.key, Map<String, dynamic>.from(entry.value));
+        egresos.add(egreso);
+      }
+      egresos.sort((a, b) => b.fechaCreado.compareTo(a.fechaCreado));
+      egresosCache = egresos;
+      return egresos;
     }
-
-    final db = await dbService.database;
-    final egreso = toEgreso(
-      (await db.query("Egreso", where: "Id = ?", whereArgs: [id])).first,
-    );
-
-    indexedEgresosCache[id] = egreso;
-    return egreso;
+    return [];
   }
 
-  // TODO: Cacheo
-  Future<List<MaterialEntry>> getEgresoMaterials(int idEgreso) async {
-    final db = await dbService.database;
-    final entries =
-        (await db.query(
-              "MaterialEgreso",
-              where: "IdEgreso = ?",
-              whereArgs: [idEgreso],
-            ))
-            .map(
-              (e) => MaterialEntry(
-                idMaterial: e["IdMaterial"] as int,
-                peso: e["Peso"] as num,
-              ),
-            )
-            .toList();
-
-    return entries;
+  Future<List<MaterialEntry>> getEgresoMaterials(String egresoId) async {
+    final snapshot = await dbRef.child(egresoId).child("materiales").get();
+    if (snapshot.exists) {
+      final List<MaterialEntry> entries = [];
+      for (var e in (snapshot.value as List)) {
+        if (e != null) {
+          entries.add(MaterialEntry(
+            idMaterial: e["idMaterial"],
+            peso: e["peso"],
+          ));
+        }
+      }
+      return entries;
+    }
+    return [];
   }
 
   Future<void> registerEgreso(
@@ -82,43 +67,48 @@ class EgresoService {
     String detalle,
     List<MaterialEntry> materialEntries,
   ) async {
-    final db = await dbService.database;
     final materialService = MaterialService.instance;
 
-    // TODO: Change to a transaction???
+    // Validar stock antes de registrar
     for (var entry in materialEntries) {
       final material = await materialService.getMaterial(entry.idMaterial);
-
-      if (material.stock - entry.peso < 0) {
-        throw "No hay stock suficiente para el material ${material.nombre} (Stock actual: ${material.stock})";
+      if (material == null || material.stock - entry.peso < 0) {
+        throw "No hay stock suficiente para el material ${material?.nombre ?? ''} (Stock actual: ${material?.stock ?? 0})";
       }
     }
 
-    final idEgreso = await db.insert("Egreso", {
-      "nombreVendedor": nombreCliente,
+    // Registrar egreso en Firebase
+    final newRef = dbRef.push();
+    await newRef.set({
+      "nombreCliente": nombreCliente,
       "total": total,
       "detalle": detalle,
-      "fechaCreado": DateTime.now().toLocal().toString(),
+      "fechaCreado": DateTime.now().toIso8601String(),
+      "materiales": materialEntries
+          .map((e) => {
+                "idMaterial": e.idMaterial,
+                "peso": e.peso,
+              })
+          .toList(),
     });
 
+    // Actualizar stock de materiales
     for (var entry in materialEntries) {
       final material = await materialService.getMaterial(entry.idMaterial);
-
-      materialService.editMaterialNoClearCache(
-        material.id,
+      await materialService.editMaterial(
+        material!.id,
         material.nombre,
         material.precioKilo,
         material.stock - entry.peso,
       );
-
-      db.insert("MaterialEgreso", {
-        "IdMaterial": entry.idMaterial,
-        "IdEgreso": idEgreso,
-        "Peso": entry.peso,
-      });
     }
 
     materialService.clearMaterialsCache();
-    _clearEgresosCache();
+    clearEgresosCache();
+  }
+
+  Future<void> deleteEgreso(String id) async {
+    await dbRef.child(id).remove();
+    clearEgresosCache();
   }
 }

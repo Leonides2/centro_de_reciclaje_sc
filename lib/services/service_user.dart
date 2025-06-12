@@ -3,9 +3,8 @@ import 'dart:math';
 import 'package:centro_de_reciclaje_sc/services/service_email.dart';
 import 'package:crypto/crypto.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_user.dart';
-import 'package:centro_de_reciclaje_sc/services/service_database.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:sqflite/sqflite.dart';
+
 
 class UserService {
   static final UserService instance = UserService();
@@ -18,7 +17,7 @@ class UserService {
 
   User _fromFirebase(String key, Map<dynamic, dynamic> data) {
     return User(
-      id: int.tryParse(key) ?? 0,
+      id: key,
       name1: data["name1"] ?? "",
       name2: data["name2"],
       lastName1: data["lastName1"] ?? "",
@@ -55,6 +54,7 @@ class UserService {
     final passwordHash = hashPassword(password);
     final newRef = dbRef.push();
     await newRef.set({
+      "id": newRef.key,
       "name1": name1,
       "lastName1": lastName1,
       "lastName2": lastName2,
@@ -65,7 +65,7 @@ class UserService {
   }
 
   Future<void> editUser({
-    required int id,
+    required String id,
     required String name1,
     String? lastName1,
     String? lastName2,
@@ -100,9 +100,24 @@ class UserService {
     }
   }
 
-  Future<void> deleteUser(int id) async {
-    await dbRef.child(id.toString()).remove();
+  Future<void> deleteUser(String id) async {
+    await dbRef.child(id).remove();
   }
+
+  Future<void> ensureAdminUserExists() async {
+  final users = await getUsers();
+  if (users.isEmpty) {
+    // Inserta un usuario administrador por defecto
+    await registerUser(
+      name1: "Administrador",
+      lastName1: "Principal",
+      lastName2: "",
+      email: "admin@admin.com",
+      password: "admin123", // Cambia esto por una contraseña segura en producción
+      role: "Admin",
+    );
+  }
+}
 
   Future<User?> authenticate(String email, String password) async {
     final passwordHash = hashPassword(password);

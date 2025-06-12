@@ -32,6 +32,7 @@ class _UsersPageState extends State<UsersPage> {
 
   void _deleteUser(int index) async {
     final user = users[index];
+    print(user.id);
     await userService.deleteUser(user.id);
     await _fetchUsers();
   }

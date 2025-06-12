@@ -28,6 +28,15 @@ class _AddIngresoPageState extends State<AddIngresoPage> {
   final _materialFormsKey = GlobalKey<MaterialFormsState>();
 
   final ValueNotifier<num> recommendedPrice = ValueNotifier(0.0);
+  @override
+  void initState() {
+    super.initState();
+    recommendedPrice.addListener(() {
+      if (totalController.text.isEmpty) {
+        totalController.text = recommendedPrice.value.toString();
+      }
+    });
+  }
 
   void _setRecommended(num newRecommended) {
     recommendedPrice.value = newRecommended;
@@ -82,106 +91,115 @@ class _AddIngresoPageState extends State<AddIngresoPage> {
           return Form(
             key: _formKey,
             child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListView(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8, top: 8),
-                      child: TextFormField(
-                        controller: nombreVendedorController,
-                        validator: (value) => validateNotEmpty(value),
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                          ),
-                          hintText: "Nombre vendedor:",
-                          labelText: "Nombre vendedor:",
+              padding: const EdgeInsets.all(8.0),
+              child: ListView(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8, top: 8),
+                    child: TextFormField(
+                      controller: nombreVendedorController,
+                      validator: (value) => validateNotEmpty(value),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
+                        hintText: "Nombre vendedor:",
+                        labelText: "Nombre vendedor:",
                       ),
                     ),
-                    MaterialForms(
-                      materials: snapshot.data!,
-                      onTotalChange: _setRecommended,
-                      key: _materialFormsKey,
+                  ),
+                  MaterialForms(
+                    materials: snapshot.data!,
+                    onTotalChange: _setRecommended,
+                    key: _materialFormsKey,
+                  ),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: ValueListenableBuilder(
+                      valueListenable: recommendedPrice,
+                      builder:
+                          (context, value, child) =>
+                              Text("Precio recomendado: ₡${formatNum(value)}"),
                     ),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: ValueListenableBuilder(
-                        valueListenable: recommendedPrice,
-                        builder:
-                            (context, value, child) => Text(
-                              "Precio recomendado: ₡${formatNum(value)}",
-                            ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: TextFormField(
+                      controller: totalController,
+                      validator: (value) => validatePrecioStock(value),
+                      keyboardType: TextInputType.numberWithOptions(
+                        signed: false,
+                        decimal: true,
+                      ),
+                      decoration: InputDecoration(
+                        prefixText: "₡",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                        ),
+                        hintText: "Total:",
+                        labelText: "Total:",
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: TextFormField(
-                        controller: totalController,
-                        validator: (value) => validatePrecioStock(value),
-                        keyboardType: TextInputType.numberWithOptions(
-                          signed: false,
-                          decimal: true,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: TextFormField(
+                      controller: detalleController,
+                      validator: (value) => validateNotEmpty(value),
+                      keyboardType: TextInputType.multiline,
+                      maxLength: 200,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
-                        decoration: InputDecoration(
-                          prefixText: "₡",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                          ),
-                          hintText: "Total:",
-                          labelText: "Total:",
-                        ),
+                        isDense: true,
+                        labelText: "Detalle:",
+                        hintText: "Detalle:",
                       ),
+                      maxLines: 6,
+                      minLines: 2,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: TextFormField(
-                        controller: detalleController,
-                        validator: (value) => validateNotEmpty(value),
-                        keyboardType: TextInputType.multiline,
-                        maxLength: 200,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                          ),
-                          isDense: true,
-                          labelText: "Detalle:",
-                          hintText: "Detalle:",
-                        ),
-                        maxLines: 6,
-                        minLines: 2,
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        if (!_formKey.currentState!.validate()) {
-                          return;
-                        }
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (!_formKey.currentState!.validate()) {
+                        return;
+                      }
 
-                        final materialsValidation =
-                            _materialFormsKey.currentState!.validateForms();
+                      final materialsValidation =
+                          _materialFormsKey.currentState!.validateForms();
 
-                        if (materialsValidation != null) {
-                          showErrorDialog(context, materialsValidation);
-                          return;
-                        }
+                      if (materialsValidation != null) {
+                        showErrorDialog(context, materialsValidation);
+                        return;
+                      }
 
-                        await draftIngresoService.registerDraftIngreso(
-                          nombreVendedorController.text,
-                          num.parse(totalController.text),
-                          detalleController.text,
-                          _materialFormsKey.currentState!.getFormValues(),
+                      // Validar que el total sea mayor a 0
+                      final totalValue = num.tryParse(totalController.text);
+                      if (totalValue == null || totalValue <= 0) {
+                        showErrorDialog(
+                          context,
+                          "El total debe ser un número mayor a 0.",
                         );
+                        return;
+                      }
 
-                        if (context.mounted) {
-                          Navigator.pop(context);
-                        }
-                      },
-                      child: Text("Añadir ingreso"),
-                    ),
-                  ],
-                ),
+                      await draftIngresoService.registerDraftIngreso(
+                        nombreVendedor: nombreVendedorController.text,
+                        total: totalValue,
+                        detalle: detalleController.text,
+                        materiales: _materialFormsKey.currentState!.getFormValues(),
+                      );
+
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: Text("Añadir ingreso"),
+                  ),
+                ],
               ),
+            ),
           );
         },
       ),

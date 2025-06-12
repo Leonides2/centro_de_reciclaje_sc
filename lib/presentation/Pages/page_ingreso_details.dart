@@ -24,7 +24,6 @@ class IngresoDetailsPage extends StatelessWidget {
   final num total;
   final _materialService = MaterialService.instance;
   final _emailService = EmailService.instance;
-  final _draftIngresoService = DraftIngresoService.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -100,25 +99,21 @@ class IngresoDetailsPage extends StatelessWidget {
                 ),
                 FieldLabel("Total:"),
                 Text("₡${formatNum(total)}"),
-                ElevatedButton(
+               ElevatedButton(
                   onPressed: () {
                     showDialog(
                       context: context,
-                      builder:
-                          (context) => SendEmailForm(
-                            sendFunction: (email) async {
-                              await _emailService.sendIngresoReceipt(
-                                await _draftIngresoService.getDraftIngreso(
-                                  ingreso.id,
-                                ),
-                                materialEntries,
-                                email,
-                              );
-                            },
-                            title:
-                                "Ingrese el correo electrónico del recipiente de la factura",
-                            sendText: "Enviar factura",
-                          ),
+                      builder: (context) => SendEmailForm(
+                        sendFunction: (email) async {
+                          await _emailService.sendIngresoReceipt(
+                            ingreso,
+                            materialEntries,
+                            email,
+                          );
+                        },
+                        title: "Ingrese el correo electrónico del recipiente de la factura",
+                        sendText: "Enviar factura",
+                      ),
                     );
                   },
                   child: Text("Generar factura"),

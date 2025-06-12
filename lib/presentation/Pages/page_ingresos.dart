@@ -163,11 +163,9 @@ class IngresoCard extends StatelessWidget {
     return Card(
       child: InkWell(
         onTap: () async {
-          final total =
-              (await draftIngresoService.getDraftIngreso(
-                ingreso.idDraftIngreso,
-              )).total;
-          final entries = await ingresoService.geIngresoMaterials(ingreso.id);
+          
+          final entries = await ingresoService.getIngresoMaterials(ingreso.id);
+          final total = ingreso.total;
 
           if (!context.mounted) {
             return;

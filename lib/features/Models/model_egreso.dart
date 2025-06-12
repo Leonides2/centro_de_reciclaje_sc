@@ -7,7 +7,7 @@ class Egreso {
     required this.fechaCreado,
   });
 
-  final int id;
+  final String id;
   final String nombreCliente;
   final num total;
   final String detalle;

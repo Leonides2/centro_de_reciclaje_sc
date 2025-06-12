@@ -1,97 +1,103 @@
 import 'dart:developer';
 
 import 'package:centro_de_reciclaje_sc/features/Models/model_material.dart';
-import 'package:centro_de_reciclaje_sc/services/service_database.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class MaterialService {
   static final MaterialService instance = MaterialService();
-  final dbService = DatabaseService.instance;
+  final dbRef = FirebaseDatabase.instance.ref("materiales");
 
   List<RecyclingMaterial>? materialsCache;
-  Map<int, RecyclingMaterial> indexedMaterialsCache = {};
+  Map<String, RecyclingMaterial> indexedMaterialsCache = {};
 
   void clearMaterialsCache() {
     materialsCache = null;
     indexedMaterialsCache = {};
   }
 
-  RecyclingMaterial _toMaterial(Map<String, Object?> e) => RecyclingMaterial(
-    id: e["Id"] as int,
-    nombre: e["Nombre"] as String,
-    precioKilo: e["PrecioKilo"] as num,
-    stock: e["Stock"] as num,
-  );
+  RecyclingMaterial _fromFirebase(String key, Map<dynamic, dynamic> data) {
+    return RecyclingMaterial(
+      id: key, // Cambia tu modelo a String id si es necesario
+      nombre: data["nombre"] ?? "",
+      precioKilo: data["precioKilo"] ?? 0,
+      stock: data["stock"] ?? 0,
+    );
+  }
 
   Future<List<RecyclingMaterial>> getMaterials() async {
     if (materialsCache != null) {
       log("Returning from cache");
       return materialsCache!;
     }
-
-    final db = await dbService.database;
-    final materials = (await db.query("Material")).map(_toMaterial).toList();
-    log("Setting cache");
-    materialsCache = materials;
-    return materials;
+    final snapshot = await dbRef.get();
+    if (snapshot.exists) {
+      final List<RecyclingMaterial> materials = [];
+      final data = Map<String, dynamic>.from(snapshot.value as Map);
+      for (var entry in data.entries) {
+        final material = _fromFirebase(
+          entry.key,
+          Map<String, dynamic>.from(entry.value),
+        );
+        materials.add(material);
+        indexedMaterialsCache[entry.key] = material;
+      }
+      materialsCache = materials;
+      return materials;
+    }
+    return [];
   }
 
-  Future<RecyclingMaterial> getMaterial(int id) async {
+  Future<RecyclingMaterial?> getMaterial(String id) async {
     if (indexedMaterialsCache.containsKey(id)) {
-      return indexedMaterialsCache[id]!;
+      return indexedMaterialsCache[id];
     }
-
-    final db = await dbService.database;
-
-    final material = _toMaterial(
-      (await db.query("Material", where: "Id = ?", whereArgs: [id])).first,
-    );
-
-    indexedMaterialsCache[id] = material;
-    return material;
+    final snapshot = await dbRef.child(id).get();
+    if (snapshot.exists) {
+      final material = _fromFirebase(
+        id,
+        Map<String, dynamic>.from(snapshot.value as Map),
+      );
+      indexedMaterialsCache[id] = material;
+      return material;
+    }
+    return null;
   }
 
   Future<void> registerMaterial(String nombre, num precioKilo) async {
     if (nombre.isEmpty) {
       throw Exception("El campo \"nombre\" debe no estar vacío");
     }
-
     if (precioKilo <= 0) {
-      throw Exception("El campo \"precioKilo\" debe no estar vacío");
+      throw Exception("El campo \"precioKilo\" debe ser mayor a 0");
     }
-
-    final db = await dbService.database;
-    await db.insert("Material", {
-      "nombre": nombre,
-      "precioKilo": precioKilo,
-      "stock": 0,
-    });
-
+    final newRef = dbRef.push();
+    await newRef.set({"nombre": nombre, "precioKilo": precioKilo, "stock": 0});
     clearMaterialsCache();
   }
 
   Future<void> editMaterial(
-    int id,
+    String id,
     String nombre,
     num precioKilo,
     num stock,
   ) async {
-    await editMaterialNoClearCache(id, nombre, precioKilo, stock);
-
+    await dbRef.child(id).update({
+      "nombre": nombre,
+      "precioKilo": precioKilo,
+      "stock": stock,
+    });
     clearMaterialsCache();
   }
 
-  Future<void> editMaterialNoClearCache(
-    int id,
-    String nombre,
-    num precioKilo,
-    num stock,
-  ) async {
-    final db = await dbService.database;
-    await db.update(
-      "Material",
-      {"Nombre": nombre, "PrecioKilo": precioKilo, "Stock": stock},
-      where: "Id = ?",
-      whereArgs: [id],
-    );
+  Future<void> incrementStock(String id, num cantidad) async {
+    final materialSnapshot = await dbRef.child(id).get();
+    if (!materialSnapshot.exists) {
+      throw Exception("Material no encontrado");
+    }
+    final data = Map<String, dynamic>.from(materialSnapshot.value as Map);
+    final stockActual = data["stock"] ?? 0;
+    final nuevoStock = stockActual + cantidad;
+    await dbRef.child(id).update({"stock": nuevoStock});
+    clearMaterialsCache();
   }
 }
