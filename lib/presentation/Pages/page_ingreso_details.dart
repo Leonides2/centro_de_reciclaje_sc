@@ -6,7 +6,6 @@ import 'package:centro_de_reciclaje_sc/core/widgets/widget_send_email_form.dart'
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_wave_loading_animation.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_draft_or_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material_entry.dart';
-import 'package:centro_de_reciclaje_sc/services/service_draft_ingreso.dart';
 import 'package:centro_de_reciclaje_sc/services/service_email.dart';
 import 'package:centro_de_reciclaje_sc/services/service_material.dart';
 import 'package:flutter/material.dart';

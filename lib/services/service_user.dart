@@ -10,6 +10,12 @@ class UserService {
   static final UserService instance = UserService();
   final dbRef = FirebaseDatabase.instance.ref("usuarios");
 
+  List<User>? usersCache;
+
+  void clearUsersCache() {
+    usersCache = null;
+  }
+
   String hashPassword(String password) {
     final bytes = utf8.encode(password);
     return sha256.convert(bytes).toString();

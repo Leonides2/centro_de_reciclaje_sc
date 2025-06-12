@@ -95,7 +95,7 @@ class ProfilePage extends StatelessWidget {
                     ),
                   ],
                   TextCard(
-                    text: 'Resetear base de datos local',
+                    text: 'Descargar datos de la nube',
                     onTap: () {
                       Navigator.push(
                         context,

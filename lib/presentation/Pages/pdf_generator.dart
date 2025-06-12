@@ -93,8 +93,8 @@ class PdfGenerator {
   ).toList();
 
   // 3. Sumar totales
-  final totalPagado = ingresosFiltrados.fold<num>(0, (a, b) => a + (b.total ?? 0));
-  final totalVendido = egresosFiltrados.fold<num>(0, (a, b) => a + (b.total ?? 0));
+  final totalPagado = ingresosFiltrados.fold<num>(0, (a, b) => a + (b.total));
+  final totalVendido = egresosFiltrados.fold<num>(0, (a, b) => a + (b.total));
   final utilidad = totalVendido - totalPagado;
 
   // 4. Construir el PDF
