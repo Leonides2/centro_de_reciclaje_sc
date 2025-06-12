@@ -31,10 +31,10 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   void _deleteUser(int index) async {
-  final user = users[index];
-  await userService.deleteUser(user.id);
-  await _fetchUsers();
-}
+    final user = users[index];
+    await userService.deleteUser(user.id);
+    await _fetchUsers();
+  }
 
   void _showAddUserDialog() {
     showDialog(
@@ -145,60 +145,108 @@ class _UsersPageState extends State<UsersPage> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: ListTile(
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
+              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 16,
                 ),
-                leading: CircleAvatar(backgroundColor: Colors.blue),
-                title: Text(
-                  users[index].name1,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text("Correo: ${users[index].email}"),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  
                   children: [
-                    IconButton(
-                      icon: Icon(Icons.edit, color: Colors.green),
-                      onPressed: () async {
-                        final updatedUser = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => UserFormPage(
-                                  user: users[index],
-                                  isEditing: true,
-                                ), // 👈 Ahora entra en modo edición
+                    // Fila superior: Nombre, correo y avatar a la derecha
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      spacing: 20,
+                      children: [
+                         // Avatar a la izquierda
+                        CircleAvatar(
+                          backgroundColor: Colors.blue,
+                          radius: 26,
+                          child: Text(
+                            users[index].name1.isNotEmpty
+                                ? users[index].name1[0].toUpperCase()
+                                : '',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        );
-
-                        if (updatedUser != null) {
-                          setState(() {
-                            users[index] = updatedUser;
-                          });
-                        }
-                      },
-                    ),
-
-                    IconButton(
-                      icon: Icon(Icons.delete, color: Colors.red),
-                      onPressed: () => _deleteUser(index),
-                    ),
-
-                    IconButton(
-                      icon: Icon(Icons.info, color: Colors.blue),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => UserFormPage(
-                                  user: users[index],
-                                ), // 👈 Abre detalles en modo solo lectura
+                        ),
+                        // Nombre y correo
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                users[index].name1,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                users[index].email,
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ),
-                        );
-                      },
+                        ),
+                       
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    // Fila inferior: Botones
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit, color: Colors.green),
+                          tooltip: "Editar usuario",
+                          onPressed: () async {
+                            final updatedUser = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => UserFormPage(
+                                      user: users[index],
+                                      isEditing: true,
+                                    ),
+                              ),
+                            );
+                            if (updatedUser != null) {
+                              setState(() {
+                                users[index] = updatedUser;
+                              });
+                            }
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          tooltip: "Eliminar usuario",
+                          onPressed: () => _deleteUser(index),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.info, color: Colors.blue),
+                          tooltip: "Ver detalles",
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) =>
+                                        UserFormPage(user: users[index]),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
