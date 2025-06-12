@@ -4,8 +4,10 @@ import 'package:centro_de_reciclaje_sc/core/widgets/widget_wave_loading_animatio
 import 'package:centro_de_reciclaje_sc/features/Models/model_egreso.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_add_egreso.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/page_egreso_details.dart';
+import 'package:centro_de_reciclaje_sc/providers/UserProvider.dart';
 import 'package:centro_de_reciclaje_sc/services/service_egreso.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class EgresosPage extends StatefulWidget {
   const EgresosPage({super.key});
@@ -25,12 +27,15 @@ class _EgresosPageState extends State<EgresosPage> {
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<UserProvider>(context).user;
+    
     return PageWrapper(
       appBar: AppBar(
         title: Text("Egresos"),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         actions: [
+          if (user != null)
           ElevatedButton(
             onPressed: () {
               Navigator.push(

@@ -3,10 +3,12 @@ import 'package:centro_de_reciclaje_sc/core/input_validators.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_field_label.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_page_wrapper.dart';
 import 'package:centro_de_reciclaje_sc/core/widgets/widget_wave_loading_animation.dart';
+import 'package:centro_de_reciclaje_sc/providers/UserProvider.dart';
 import 'package:flutter/material.dart';
 
 import 'package:centro_de_reciclaje_sc/services/service_material.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material.dart';
+import 'package:provider/provider.dart';
 
 class MaterialsPage extends StatefulWidget {
   const MaterialsPage({super.key});
@@ -32,12 +34,16 @@ class _MaterialsPageState extends State<MaterialsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<UserProvider>(context).user;
+
     return PageWrapper(
       appBar: AppBar(
         title: Text("Materiales"),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         actions: [
+
+          if (user != null)
           ElevatedButton(
             onPressed: () {
               showDialog(
