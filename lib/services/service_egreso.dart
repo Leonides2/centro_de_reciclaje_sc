@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:centro_de_reciclaje_sc/features/Models/model_egreso.dart';
 import 'package:centro_de_reciclaje_sc/features/Models/model_material_entry.dart';
 import 'package:centro_de_reciclaje_sc/services/service_material.dart';

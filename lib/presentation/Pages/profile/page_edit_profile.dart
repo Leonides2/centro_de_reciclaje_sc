@@ -59,7 +59,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         lastName1: lastName1Controller.text.trim(),
         lastName2: lastName2Controller.text.trim(),
         email: user.email, // No se puede editar el correo
-        role: user.role ?? "Usuario",
+        role: user.role,
       );
       // Actualiza el provider
       Provider.of<UserProvider>(context, listen: false).setUser(

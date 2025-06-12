@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:centro_de_reciclaje_sc/presentation/Pages/pdf_generator.dart';
 import 'package:printing/printing.dart';
@@ -22,8 +21,9 @@ class ReporteDetallePage extends StatefulWidget {
 class _ReporteDetallePageState extends State<ReporteDetallePage> {
   DateTime fechaInicio = DateTime.now();
   DateTime fechaFin = DateTime.now();
-  DateTime currentMonth = DateTime.now(); // 🔹 Asegura que currentMonth esté definido
- 
+  DateTime currentMonth =
+      DateTime.now(); // 🔹 Asegura que currentMonth esté definido
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,11 +63,11 @@ class _ReporteDetallePageState extends State<ReporteDetallePage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.orange,
+                  color: Colors.red,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Text(
-                  'Text',
+                  'PDF',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 12,
@@ -91,138 +91,107 @@ class _ReporteDetallePageState extends State<ReporteDetallePage> {
   }
 
   Widget _buildReporteFechasCard() {
-  return Card(
-    elevation: 2,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Generar reporte de fechas específicas',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 24),
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Generar reporte de fechas específicas',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 24),
 
-          // 🔹 Selección de fechas mejorada
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  icon: const Icon(Icons.calendar_today, color: Color(0xFF017d1c)),
-                  label: Text(
-                    "Inicio: ${fechaInicio.day}/${fechaInicio.month}/${fechaInicio.year}",
-                    style: const TextStyle(color: Color(0xFF017d1c)),
+            // 🔹 Selección de fechas mejorada
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(
+                      Icons.calendar_today,
+                      color: Color(0xFF017d1c),
+                    ),
+                    label: Text(
+                      "Inicio: ${fechaInicio.day}/${fechaInicio.month}/${fechaInicio.year}",
+                      style: const TextStyle(color: Color(0xFF017d1c)),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFF017d1c)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    onPressed: () async {
+                      final DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: fechaInicio,
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime.now(),
+                      );
+                      if (picked != null) setState(() => fechaInicio = picked);
+                    },
                   ),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFF017d1c)),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                  onPressed: () async {
-                    final DateTime? picked = await showDatePicker(
-                      context: context,
-                      initialDate: fechaInicio,
-                      firstDate: DateTime(2020),
-                      lastDate: DateTime.now(),
-                    );
-                    if (picked != null) setState(() => fechaInicio = picked);
-                  },
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: OutlinedButton.icon(
-                  icon: const Icon(Icons.calendar_today, color: Color(0xFF017d1c)),
-                  label: Text(
-                    "Fin: ${fechaFin.day}/${fechaFin.month}/${fechaFin.year}",
-                    style: const TextStyle(color: Color(0xFF017d1c)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(
+                      Icons.calendar_today,
+                      color: Color(0xFF017d1c),
+                    ),
+                    label: Text(
+                      "Fin: ${fechaFin.day}/${fechaFin.month}/${fechaFin.year}",
+                      style: const TextStyle(color: Color(0xFF017d1c)),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFF017d1c)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    onPressed: () async {
+                      final DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: fechaFin,
+                        firstDate: fechaInicio,
+                        lastDate: DateTime.now(),
+                      );
+                      if (picked != null) setState(() => fechaFin = picked);
+                    },
                   ),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFF017d1c)),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                  onPressed: () async {
-                    final DateTime? picked = await showDatePicker(
-                      context: context,
-                      initialDate: fechaFin,
-                      firstDate: fechaInicio,
-                      lastDate: DateTime.now(),
-                    );
-                    if (picked != null) setState(() => fechaFin = picked);
-                  },
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
 
-          const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-          // Botón generar reporte
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => _generarReporteFecha(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+            // Botón generar reporte
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => _generarReporteFecha(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-              ),
-              child: const Text(
-                'Generar',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                child: const Text(
+                  'Generar',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
-
-  Widget _buildMonthSelector() {
-    final monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
-    ];
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        IconButton(
-          onPressed: () {
-            setState(() {
-              currentMonth = DateTime(
-                currentMonth.year,
-                currentMonth.month - 1,
-              );
-            });
-          },
-          icon: const Icon(Icons.chevron_left),
-        ),
-        Text(
-          '${monthNames[currentMonth.month - 1]} ${currentMonth.year}',
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        IconButton(
-          onPressed: () {
-            setState(() {
-              currentMonth = DateTime(
-                currentMonth.year,
-                currentMonth.month + 1,
-              );
-            });
-          },
-          icon: const Icon(Icons.chevron_right),
-        ),
-      ],
     );
   }
 
-  void _generarReporteDelDia() {
+ 
+
+  void _generarReporteDelDia() async {
     final today = DateTime.now();
     final formattedDate = '${today.day}/${today.month}/${today.year}';
 
@@ -235,22 +204,64 @@ class _ReporteDetallePageState extends State<ReporteDetallePage> {
         duration: const Duration(seconds: 3),
       ),
     );
+
+     if (widget.tipoReporte == "Materiales") {
+      await Printing.layoutPdf(
+        onLayout:
+            (format) async =>
+                await PdfGenerator.generateMaterialesIngresoReport(
+                  today,
+                  today,
+                ),
+      );
+    }
+
+     if (widget.tipoReporte == "Ingresos") {
+      await Printing.layoutPdf(
+        onLayout:
+            (format) async =>
+                await PdfGenerator.generateIngresosMonetariosReport(
+                  today,
+                  today,
+                ),
+      );
+    }
   }
 
   void _generarReporteFecha() async {
-     // Validación: mínimo un día de diferencia
-  if (fechaFin.difference(fechaInicio).inDays < 1) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('El rango de fechas debe ser de al menos un día de diferencia.'),
-        backgroundColor: Colors.red,
-        duration: Duration(seconds: 3),
-      ),
-    );
-    return;
-  }
-    await Printing.layoutPdf(
-      onLayout: (format) async => await PdfGenerator.generatePdf(widget.tipoReporte, fechaInicio, fechaFin),
-    );
+    // Validación: mínimo un día de diferencia
+    if (fechaFin.difference(fechaInicio).inDays < 1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'El rango de fechas debe ser de al menos un día de diferencia.',
+          ),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+    if (widget.tipoReporte == "Materiales") {
+      await Printing.layoutPdf(
+        onLayout:
+            (format) async =>
+                await PdfGenerator.generateMaterialesIngresoReport(
+                  fechaInicio,
+                  fechaFin,
+                ),
+      );
+    }
+
+     if (widget.tipoReporte == "Ingresos") {
+      await Printing.layoutPdf(
+        onLayout:
+            (format) async =>
+                await PdfGenerator.generateIngresosMonetariosReport(
+                  fechaInicio,
+                  fechaFin,
+                ),
+      );
+    }
   }
 }

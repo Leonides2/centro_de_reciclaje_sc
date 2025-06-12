@@ -193,7 +193,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
+  /*
   // Widget para páginas que aún no están implementadas
   Widget _buildPlaceholderPage(String title, IconData icon) {
     return Scaffold(
@@ -225,5 +225,5 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
-  }
+  }*/
 }
